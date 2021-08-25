@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "strobo",
+  "version": "${version}",
+  "name": "Strobo",
+  "description": "",
+  "license": "All-Rights-Reserved",
+  "environment": "server",
+  "accessWidener": "strobo.accesswidener",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "dev.uten2c.strobo.Strobo"
+      }
+    ]
+  },
+  "mixins": [
+    "strobo.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.6",
+    "minecraft": ">=1.17.1"
+  }
+}
