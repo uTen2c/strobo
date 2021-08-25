@@ -4,7 +4,10 @@
   "package": "dev.uten2c.strobo.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "command.MixinCommandManager"
+    "command.MixinCommandManager",
+    "serversideitem.MixinEntityTrackerUpdateS2CPacket",
+    "serversideitem.MixinPacketByteBuf",
+    "serversideitem.MixinServerPlayNetworkHandler"
   ],
   "injectors": {
     "defaultRequire": 1
