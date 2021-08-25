@@ -1,10 +1,15 @@
+import net.fabricmc.loom.task.RemapJarTask
+import net.fabricmc.loom.task.RemapSourcesJarTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    kotlin("jvm") version "1.5.21"
+    kotlin("jvm") version "1.5.30"
     id("fabric-loom") version "0.9-SNAPSHOT"
+    `maven-publish`
 }
 
 group = "dev.uten2c"
-version = "1.0-SNAPSHOT"
+version = "1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_16
@@ -24,14 +29,14 @@ repositories {
 fun DependencyHandlerScope.includeAndExpose(dep: Any) {
     modApi(dep)
     include(dep)
-    
+
 }
 
 dependencies {
     minecraft("com.mojang:minecraft:1.17.1")
     mappings("net.fabricmc:yarn:1.17.1+build.43:v2")
     modImplementation("net.fabricmc:fabric-loader:0.11.6")
-    includeAndExpose("org.jetbrains.kotlin:kotlin-stdlib:1.5.21")
+    includeAndExpose(kotlin("stdlib"))
 }
 
 loom {
@@ -42,8 +47,39 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "16"
+    }
+}
+
+val remapJar = tasks.getByName<RemapJarTask>("remapJar")
+val remapSourcesJar = tasks.getByName<RemapSourcesJarTask>("remapSourcesJar")
+
+val sourcesJar = tasks.create<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(sourceSets["main"].allSource)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+
+            artifact(remapJar) {
+                builtBy(remapJar)
+            }
+            artifact(sourcesJar) {
+                builtBy(remapSourcesJar)
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = uri("${System.getProperty("user.home")}/private-repo")
+            println(uri("${System.getProperty("user.home")}/private-repo"))
+        }
     }
 }
