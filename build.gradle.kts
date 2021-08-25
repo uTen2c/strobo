@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "dev.uten2c"
-version = "1"
+version = "2"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_16
@@ -33,8 +33,8 @@ fun DependencyHandlerScope.includeAndExpose(dep: Any) {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.17.1")
-    mappings("net.fabricmc:yarn:1.17.1+build.43:v2")
+    minecraft(group = "com.mojang", name = "minecraft", version = "1.17.1")
+    mappings(group = "net.fabricmc", name = "yarn", version = "1.17.1+build.43", classifier = "v2")
     modImplementation("net.fabricmc:fabric-loader:0.11.6")
     includeAndExpose(kotlin("stdlib"))
 }
