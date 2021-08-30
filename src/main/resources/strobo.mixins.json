@@ -7,6 +7,7 @@
     "command.MixinCommandManager",
     "event.MixinMinecraftServer",
     "event.MixinPlayerManager",
+    "event.MixinServerPlayerInteractionManager",
     "serversideitem.MixinEntityTrackerUpdateS2CPacket",
     "serversideitem.MixinPacketByteBuf",
     "serversideitem.MixinServerPlayNetworkHandler"
