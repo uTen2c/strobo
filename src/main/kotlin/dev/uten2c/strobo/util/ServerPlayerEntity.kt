@@ -4,6 +4,8 @@ import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
+import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.Vec3d
 
 private val states = object : HashMap<ServerPlayerEntity, ListState>() {
     override fun get(key: ServerPlayerEntity): ListState {
@@ -64,4 +66,12 @@ var ServerPlayerEntity.flySpeed: Float
     set(value) {
         abilities.flySpeed = value / 2f
         sendAbilitiesUpdate()
+    }
+
+val ServerPlayerEntity.direction: Vec3d
+    get() {
+        val x = -MathHelper.sin(yaw * 0.017453292f) * MathHelper.cos(pitch * 0.017453292f)
+        val y = -MathHelper.sin(pitch * 0.017453292f)
+        val z = MathHelper.cos(yaw * 0.017453292f) * MathHelper.cos(pitch * 0.017453292f)
+        return Vec3d(x.toDouble(), y.toDouble(), z.toDouble()).normalize()
     }
