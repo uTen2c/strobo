@@ -3,13 +3,13 @@ import net.fabricmc.loom.task.RemapSourcesJarTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.21"
+    kotlin("jvm") version "1.5.30"
     id("fabric-loom") version "0.9-SNAPSHOT"
     `maven-publish`
 }
 
 group = "dev.uten2c"
-version = "11"
+version = "12"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_16
@@ -30,7 +30,7 @@ dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = "1.17.1")
     mappings(group = "net.fabricmc", name = "yarn", version = "1.17.1+build.43", classifier = "v2")
     modImplementation("net.fabricmc:fabric-loader:0.11.6")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.6.3+kotlin.1.5.21")
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.6.4+kotlin.1.5.30")
 }
 
 loom {
