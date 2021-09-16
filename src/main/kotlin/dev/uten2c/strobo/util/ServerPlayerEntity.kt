@@ -4,8 +4,6 @@ import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec3d
 
 private val states = object : HashMap<ServerPlayerEntity, ListState>() {
     override fun get(key: ServerPlayerEntity): ListState {
