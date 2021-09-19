@@ -72,8 +72,6 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     fun swizzle(name: String, child: Child) = next(arg(name, SwizzleArgumentType.swizzle()), child)
     fun nbtElement(name: String, child: Child) = next(arg(name, NbtElementArgumentType.nbtElement()), child)
     fun team(name: String, child: Child) = next(arg(name, TeamArgumentType.team()), child)
-    fun testClass(name: String, child: Child) = next(arg(name, TestClassArgumentType.testClass()), child)
-    fun testFunction(name: String, child: Child) = next(arg(name, TestFunctionArgumentType.testFunction()), child)
     fun text(name: String, child: Child) = next(arg(name, TextArgumentType.text()), child)
     fun uuid(name: String, child: Child) = next(arg(name, UuidArgumentType.uuid()), child)
     fun vec2(name: String, child: Child) = next(arg(name, Vec2ArgumentType.vec2()), child)

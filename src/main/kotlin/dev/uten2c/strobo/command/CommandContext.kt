@@ -24,7 +24,6 @@ import net.minecraft.server.function.CommandFunction
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.tag.Tag
-import net.minecraft.test.TestFunction
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
@@ -86,8 +85,6 @@ class CommandContext(private val context: CommandContext<ServerCommandSource>) {
     fun getSwizzle(name: String): EnumSet<Direction.Axis> = SwizzleArgumentType.getSwizzle(context, name)
     fun getNbtElement(name: String): NbtElement = NbtElementArgumentType.getNbtElement(context, name)
     fun getTeam(name: String): Team = TeamArgumentType.getTeam(context, name)
-    fun getTestClass(name: String): String = TestClassArgumentType.getTestClass(context, name)
-    fun getTestFunction(name: String): TestFunction = TestFunctionArgumentType.getFunction(context, name)
     fun getText(name: String): Text = TextArgumentType.getTextArgument(context, name)
     fun getUUID(name: String): UUID = UuidArgumentType.getUuid(context, name)
     fun getVec2(name: String): Vec2f = Vec2ArgumentType.getVec2(context, name)
