@@ -65,3 +65,30 @@ var ServerPlayerEntity.flySpeed: Float
         abilities.flySpeed = value / 2f
         sendAbilitiesUpdate()
     }
+
+fun ServerPlayerEntity.bukkitTp(location: Location): Boolean {
+    if (health == 0f || isRemoved) {
+        return false
+    }
+
+    if (networkHandler == null) {
+        return false
+    }
+
+    if (hasPassengers()) {
+        return false
+    }
+
+    stopRiding()
+
+    if (isSleeping) {
+        wakeUp(true, false)
+    }
+
+    if (currentScreenHandler != playerScreenHandler) {
+        closeHandledScreen()
+    }
+
+    networkHandler.requestTeleport(location.x, location.y, location.z, location.yaw, location.pitch)
+    return true
+}
