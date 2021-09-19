@@ -1,17 +1,19 @@
 package dev.uten2c.strobo.mixin.event;
 
-import dev.uten2c.strobo.event.player.PlayerMoveEvent;
-import dev.uten2c.strobo.event.player.PlayerQuitEvent;
+import dev.uten2c.strobo.event.player.*;
 import dev.uten2c.strobo.util.EntityKt;
 import dev.uten2c.strobo.util.Location;
 import dev.uten2c.strobo.util.ServerPlayerEntityKt;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.MessageType;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.listener.ServerPlayPacketListener;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
@@ -381,5 +383,26 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
             lastYaw = yaw;
             lastPitch = pitch;
         }
+    }
+
+    @Inject(method = "onUpdateSelectedSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;getHotbarSize()I", shift = At.Shift.AFTER))
+    private void onUpdateSelectedSlot(UpdateSelectedSlotC2SPacket packet, CallbackInfo ci) {
+        new PlayerItemHeldEvent(player, player.getInventory().selectedSlot, packet.getSelectedSlot()).callEvent();
+    }
+
+    @Inject(method = "onPlayerAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getStackInHand(Lnet/minecraft/util/Hand;)Lnet/minecraft/item/ItemStack;", shift = At.Shift.AFTER), cancellable = true)
+    private void injectPlayerSwapItemsEvent(PlayerActionC2SPacket packet, CallbackInfo ci) {
+        ItemStack mainHandStack = player.getMainHandStack();
+        ItemStack offHandStack = player.getOffHandStack();
+        PlayerSwapHandItemsEvent event = new PlayerSwapHandItemsEvent(player, mainHandStack, offHandStack);
+        if (!event.callEvent()) {
+            ci.cancel();
+        }
+    }
+
+    @Redirect(method = "onClientCommand", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setSprinting(Z)V"))
+    private void sprinting(ServerPlayerEntity player, boolean isSprinting) {
+        new PlayerToggleSprintEvent(player, isSprinting).callEvent();
+        player.setSprinting(isSprinting);
     }
 }

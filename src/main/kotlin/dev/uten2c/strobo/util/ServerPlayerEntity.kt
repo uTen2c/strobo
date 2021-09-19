@@ -13,7 +13,6 @@ private val states = object : HashMap<ServerPlayerEntity, ListState>() {
         return super.get(key)!!
     }
 }
-
 private data class ListState(var header: Text?, var footer: Text?, var name: Text?)
 
 var ServerPlayerEntity.playerListHeader: Text?

@@ -8,3 +8,11 @@ var ItemStack.customModelData: Int?
         value != null -> orCreateNbt.putInt("CustomModelData", value)
         else -> orCreateNbt.remove("CustomModelData")
     }
+
+fun ItemStack.isSimilar(stack: ItemStack?): Boolean {
+    return when (stack) {
+        null -> false
+        this -> true
+        else -> getItem() == stack.getItem() && damage == stack.damage && nbt == stack.nbt
+    }
+}
