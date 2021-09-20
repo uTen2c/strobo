@@ -101,11 +101,6 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     private MinecraftServer server;
 
     @Shadow
-    private static boolean validateVehicleMove(double x, double y, double z, float yaw, float pitch) {
-        return false;
-    }
-
-    @Shadow
     protected abstract boolean isEntityOnAir(Entity entity);
 
     @Shadow
@@ -120,6 +115,8 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
 
     @Shadow
     public abstract void requestTeleportAndDismount(double x, double y, double z, float yaw, float pitch);
+
+    @Shadow protected abstract boolean isMovementInvalid(double x, double y, double z, float yaw, float pitch);
 
     private double lastPosX = Double.MAX_VALUE;
     private double lastPosY = Double.MAX_VALUE;
@@ -144,7 +141,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     @Overwrite
     public void onPlayerMove(PlayerMoveC2SPacket packet) {
         NetworkThreadUtils.forceMainThread(packet, this, this.player.getServerWorld());
-        if (validateVehicleMove(packet.getX(0.0D), packet.getY(0.0D), packet.getZ(0.0D), packet.getYaw(0.0F), packet.getPitch(0.0F))) {
+        if (isMovementInvalid(packet.getX(0.0D), packet.getY(0.0D), packet.getZ(0.0D), packet.getYaw(0.0F), packet.getPitch(0.0F))) {
             this.disconnect(new TranslatableText("multiplayer.disconnect.invalid_player_movement"));
         } else {
             ServerWorld serverWorld = this.player.getServerWorld();

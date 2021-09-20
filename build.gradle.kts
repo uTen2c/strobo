@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = "1.17.1")
-    mappings(group = "net.fabricmc", name = "yarn", version = "1.17.1+build.43", classifier = "v2")
+    mappings(group = "net.fabricmc", name = "yarn", version = "1.17.1+build.61", classifier = "v2")
     modImplementation("net.fabricmc:fabric-loader:0.11.6")
     modImplementation("net.fabricmc:fabric-language-kotlin:1.6.4+kotlin.1.5.30")
 }
