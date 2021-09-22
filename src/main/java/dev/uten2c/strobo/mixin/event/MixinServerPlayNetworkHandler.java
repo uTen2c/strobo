@@ -116,7 +116,10 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     @Shadow
     public abstract void requestTeleportAndDismount(double x, double y, double z, float yaw, float pitch);
 
-    @Shadow protected abstract boolean isMovementInvalid(double x, double y, double z, float yaw, float pitch);
+    @Shadow
+    private static boolean isMovementInvalid(double x, double y, double z, float yaw, float pitch) {
+        return false;
+    }
 
     private double lastPosX = Double.MAX_VALUE;
     private double lastPosY = Double.MAX_VALUE;
