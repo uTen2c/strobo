@@ -13,6 +13,7 @@ private val states = object : HashMap<ServerPlayerEntity, ListState>() {
         return super.get(key)!!
     }
 }
+
 private data class ListState(var header: Text?, var footer: Text?, var name: Text?)
 
 var ServerPlayerEntity.playerListHeader: Text?
@@ -39,14 +40,8 @@ fun ServerPlayerEntity.updatePlayerListHeaderAndFooter() {
 
 fun ServerPlayerEntity.sendTitle(title: Text?, subtitle: Text?, fadeIn: Int, stay: Int, fadeOut: Int) {
     networkHandler.sendPacket(TitleFadeS2CPacket(fadeIn, stay, fadeOut))
-
-    if (title != null) {
-        networkHandler.sendPacket(TitleS2CPacket(title))
-    }
-
-    if (subtitle != null) {
-        networkHandler.sendPacket(SubtitleS2CPacket(subtitle))
-    }
+    networkHandler.sendPacket(SubtitleS2CPacket(subtitle ?: emptyText()))
+    networkHandler.sendPacket(TitleS2CPacket(title ?: emptyText()))
 }
 
 fun ServerPlayerEntity.clearTitle() = networkHandler.sendPacket(ClearTitleS2CPacket(null))
