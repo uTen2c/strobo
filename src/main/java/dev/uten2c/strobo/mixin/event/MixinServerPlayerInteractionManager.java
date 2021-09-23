@@ -41,7 +41,7 @@ public abstract class MixinServerPlayerInteractionManager {
             player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, Blocks.AIR.getDefaultState()));
         }
 
-        event = new BlockBreakEvent(blockState, player);
+        event = new BlockBreakEvent(blockState, pos, player);
         event.setCancelled(isSwordNoBreak);
         event.callEvent();
 
