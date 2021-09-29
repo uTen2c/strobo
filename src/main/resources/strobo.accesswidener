@@ -18,3 +18,6 @@ accessible field net/minecraft/network/packet/c2s/play/PlayerMoveC2SPacket pitch
 
 # PlayerEntity
 accessible method net/minecraft/entity/player/PlayerEntity isImmobile ()Z
+
+# ScreenHandler
+accessible field net/minecraft/screen/ScreenHandler listeners Ljava/util/List;
