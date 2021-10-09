@@ -44,7 +44,7 @@ fun ServerPlayerEntity.sendTitle(title: Text?, subtitle: Text?, fadeIn: Int, sta
     networkHandler.sendPacket(TitleS2CPacket(title ?: emptyText()))
 }
 
-fun ServerPlayerEntity.clearTitle() = networkHandler.sendPacket(ClearTitleS2CPacket(null))
+fun ServerPlayerEntity.clearTitle() = networkHandler.sendPacket(ClearTitleS2CPacket(false))
 
 fun ServerPlayerEntity.respawn() {
     val manager = server?.playerManager
