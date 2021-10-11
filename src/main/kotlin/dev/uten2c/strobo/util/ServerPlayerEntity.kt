@@ -1,10 +1,15 @@
 package dev.uten2c.strobo.util
 
+import dev.uten2c.strobo.task.afterTicks
 import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
+private val hiddenPlayerMap = HashMap<UUID, HashSet<UUID>>()
 private val states = object : HashMap<ServerPlayerEntity, ListState>() {
     override fun get(key: ServerPlayerEntity): ListState {
         if (key !in this) {
@@ -86,3 +91,37 @@ fun ServerPlayerEntity.bukkitTp(location: Location): Boolean {
     networkHandler.requestTeleport(location.x, location.y, location.z, location.yaw, location.pitch)
     return true
 }
+
+fun ServerPlayerEntity.showPlayer(player: ServerPlayerEntity) {
+    if (this == player) {
+        return
+    }
+
+    val set = hiddenPlayerMap.getOrPut(uuid) { HashSet() }
+    set.remove(player.uuid)
+
+    if (!player.isDisconnected) {
+        networkHandler.sendPacket(PlayerSpawnS2CPacket(player))
+        val y = (player.headYaw * 256f / 360f).toInt().toByte()
+        val p = (player.pitch * 256f / 360f).toInt().toByte()
+        networkHandler.sendPacket(EntityS2CPacket.Rotate(player.id, y, p, player.isOnGround))
+        repeat(3) {
+            afterTicks(it.toLong()) {
+                networkHandler.sendPacket(EntityTrackerUpdateS2CPacket(player.id, player.dataTracker, true))
+            }
+        }
+    }
+}
+
+fun ServerPlayerEntity.hidePlayer(player: ServerPlayerEntity) {
+    if (this == player) {
+        return
+    }
+
+    val set = hiddenPlayerMap.getOrPut(uuid) { HashSet() }
+    set.add(player.uuid)
+    val packet = EntitiesDestroyS2CPacket(player.id)
+    networkHandler.sendPacket(packet)
+}
+
+fun ServerPlayerEntity.isHidden(player: ServerPlayerEntity): Boolean = hiddenPlayerMap[uuid]?.contains(player.uuid) ?: false
