@@ -29,6 +29,8 @@ fun MutableText.font(font: Identifier): MutableText = setStyle(style.withFont(fo
 
 fun MutableText.strikethrough(strikethrough: Boolean): MutableText = setStyle(style.withStrikethrough(strikethrough))
 
+fun MutableText.obfuscated(obfuscated: Boolean): MutableText = setStyle(style.obfuscated(obfuscated))
+
 fun MutableText.clickEvent(clickEvent: ClickEvent?): MutableText = setStyle(style.withClickEvent(clickEvent))
 
 fun MutableText.hoverEvent(hoverEvent: HoverEvent?): MutableText = setStyle(style.withHoverEvent(hoverEvent))
