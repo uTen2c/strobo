@@ -5,12 +5,14 @@
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "command.MixinCommandManager",
+    "event.MixinItemEntity",
     "event.MixinLivingEntity",
     "event.MixinMinecraftServer",
     "event.MixinPlayerManager",
     "event.MixinServerPlayerEntity",
     "event.MixinServerPlayerInteractionManager",
     "event.MixinServerPlayNetworkHandler",
+    "impl.MixinPlayerInventory",
     "serversideitem.MixinEntityTrackerUpdateS2CPacket",
     "serversideitem.MixinPacketByteBuf",
     "serversideitem.MixinServerPlayNetworkHandler"
