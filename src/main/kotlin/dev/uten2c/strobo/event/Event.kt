@@ -7,7 +7,12 @@ abstract class Event {
     fun callEvent(): Boolean {
         val set = Strobo.eventListeners.getOrDefault(this::class, HashSet())
         set.forEach { it.handler(this) }
+        set.removeAll(removeHandlers)
         Strobo.eventListeners[this::class] = set
         return if (this is CancellableEvent) !isCancelled else true
+    }
+
+    companion object {
+        internal val removeHandlers = HashSet<EventListener>()
     }
 }
