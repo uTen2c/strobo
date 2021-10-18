@@ -28,7 +28,7 @@ public class MixinCommandManager {
     }
 
     // デバッグ出力をいつでも有効化させる
-    @Redirect(method = "execute", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;isDebugEnabled()Z"))
+    @Redirect(method = "execute", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;isDebugEnabled()Z", remap = false))
     private boolean setAlwaysTrue(Logger logger) {
         return true;
     }
