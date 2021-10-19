@@ -1,13 +1,11 @@
 package dev.uten2c.strobo.util
 
-import dev.uten2c.strobo.task.afterTicks
+import dev.uten2c.strobo.task.waitAndRun
 import net.minecraft.network.packet.s2c.play.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 private val hiddenPlayerMap = HashMap<UUID, HashSet<UUID>>()
 private val states = object : HashMap<ServerPlayerEntity, ListState>() {
@@ -106,7 +104,7 @@ fun ServerPlayerEntity.showPlayer(player: ServerPlayerEntity) {
         val p = (player.pitch * 256f / 360f).toInt().toByte()
         networkHandler.sendPacket(EntityS2CPacket.Rotate(player.id, y, p, player.isOnGround))
         repeat(3) {
-            afterTicks(it.toLong()) {
+            waitAndRun(it.toLong()) {
                 networkHandler.sendPacket(EntityTrackerUpdateS2CPacket(player.id, player.dataTracker, true))
             }
         }
