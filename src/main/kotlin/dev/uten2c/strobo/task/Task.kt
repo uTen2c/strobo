@@ -4,6 +4,11 @@ fun nextTick(block: () -> Unit) {
     TaskRunner.tasks.add(TaskRunner.Task(1, block))
 }
 
-fun afterTicks(ticks: Long, block: () -> Unit) {
+fun waitAndRun(ticks: Long, block: () -> Unit) {
     TaskRunner.tasks.add(TaskRunner.Task(ticks, block))
+}
+
+@Deprecated("renamed", ReplaceWith("waitAndRun(ticks, block)"))
+fun afterTicks(ticks: Long, block: () -> Unit) {
+    waitAndRun(ticks, block)
 }
