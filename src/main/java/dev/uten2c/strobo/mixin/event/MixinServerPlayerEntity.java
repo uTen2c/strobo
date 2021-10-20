@@ -20,7 +20,6 @@ import net.minecraft.stat.Stats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -45,34 +44,33 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity {
         super(world, pos, yaw, profile);
     }
 
-    /**
-     * @author uTen2c
-     * @reason Call PlayerStartSpectatingEntityEvent and PlayerStopSpectatingEntityEvent
-     */
-    @Overwrite
-    public void setCameraEntity(Entity newTargetEntity) {
+    // PlayerStartSpectatingEntityEventとPlayerStopSpectatingEntityEventを呼び出してる
+    // @Overwrite
+    @Inject(method = "setCameraEntity", at = @At("HEAD"), cancellable = true)
+    public void callPlayerStartSpectatingEntityEventAndPlayerStopSpectatingEntityEvent(Entity newTargetEntity, CallbackInfo ci) {
         Entity currentTarget = this.getCameraEntity();
         newTargetEntity = newTargetEntity == null ? this : newTargetEntity;
         if (currentTarget == newTargetEntity) {
-            return;
+            ci.cancel();
         }
 
         ServerPlayerEntity self = (ServerPlayerEntity) (Object) this;
         if (newTargetEntity == this) {
             PlayerStopSpectatingEntityEvent event = new PlayerStopSpectatingEntityEvent(self, currentTarget);
             if (!event.callEvent()) {
-                return;
+                ci.cancel();
             }
         } else {
             PlayerStartSpectatingEntityEvent event = new PlayerStartSpectatingEntityEvent(self, currentTarget, newTargetEntity);
             if (!event.callEvent()) {
-                return;
+                ci.cancel();
             }
         }
 
         cameraEntity = newTargetEntity;
         this.networkHandler.sendPacket(new SetCameraEntityS2CPacket(cameraEntity));
         this.requestTeleport(cameraEntity.getX(), cameraEntity.getY(), cameraEntity.getZ());
+        ci.cancel();
     }
 
     @Inject(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;dropShoulderEntities()V"))
@@ -93,10 +91,10 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity {
                 ItemStack current = inventory.getMainHandStack();
                 if (retainOwnership && (current == null || current.getCount() == 0)) {
                     inventory.setStack(inventory.selectedSlot, stack);
-                    sendSlotPacket(self, stack);
+                    strobo$sendSlotPacket(self, stack);
                 } else if (retainOwnership && ItemStackKt.isSimilar(current, itemEntity.getStack()) && current.getCount() < current.getMaxCount() && itemEntity.getStack().getCount() == 1) {
                     current.increment(1);
-                    sendSlotPacket(self, current);
+                    strobo$sendSlotPacket(self, current);
                 } else {
                     inventory.insertStack(stack);
                     playerScreenHandler.sendContentUpdates();
@@ -120,7 +118,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity {
         }
     }
 
-    private static void sendSlotPacket(ServerPlayerEntity player, ItemStack stack) {
+    private static void strobo$sendSlotPacket(ServerPlayerEntity player, ItemStack stack) {
         player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(
                 player.playerScreenHandler.syncId,
                 player.playerScreenHandler.getRevision(),

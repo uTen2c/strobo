@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(ServerPlayNetworkHandler.class)
 public class MixinServerPlayNetworkHandler {
 
-    // クリエイティブインベントリーでServerSideItemをいい感じにさせる
+    // クリエイティブインベントリーでServerSideItemが表示用アイテムに置き換わってしまうのを防いでる
     @Redirect(method = "onCreativeInventoryAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/c2s/play/CreativeInventoryActionC2SPacket;getItemStack()Lnet/minecraft/item/ItemStack;"))
     private ItemStack swapStack(CreativeInventoryActionC2SPacket packet) {
         ItemStack stack = packet.getItemStack();

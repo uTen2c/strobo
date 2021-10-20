@@ -4,7 +4,6 @@ import dev.uten2c.strobo.event.player.PlayerAttemptPickupItemEvent;
 import dev.uten2c.strobo.util.IPlayerInventory;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,6 +21,7 @@ public abstract class MixinItemEntity {
     @Shadow
     private int pickupDelay;
 
+    // PlayerAttemptPickupItemEventを呼び出してる
     @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getCount()I", shift = At.Shift.AFTER), cancellable = true)
     private void callPlayerAttemptPickupItemEvent(PlayerEntity player, CallbackInfo ci) {
         var stack = getStack();

@@ -15,6 +15,7 @@ import java.util.List;
 @Mixin(EntityTrackerUpdateS2CPacket.class)
 public class MixinEntityTrackerUpdateS2CPacket {
 
+    // エンティティがアイテムを持ってるときとか額縁にアイテムが入ってたりするときに送信されるパケットを偽装してる
     @SuppressWarnings("unchecked")
     @Redirect(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/data/DataTracker;entriesToPacket(Ljava/util/List;Lnet/minecraft/network/PacketByteBuf;)V"))
     private <T> void write(List<DataTracker.Entry<T>> list, PacketByteBuf packetByteBuf) {

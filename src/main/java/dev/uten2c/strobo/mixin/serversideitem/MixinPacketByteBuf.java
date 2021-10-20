@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(PacketByteBuf.class)
 public class MixinPacketByteBuf {
 
+    // パケットにItemStackが書き込まれるときに表示用アイテムに置き換えてる
     @ModifyVariable(method = "writeItemStack", at = @At("HEAD"), ordinal = 0)
     private ItemStack swapStack(ItemStack stack) {
         Item item = stack.getItem();

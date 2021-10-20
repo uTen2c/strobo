@@ -30,6 +30,7 @@ public abstract class MixinServerPlayerInteractionManager {
     @Shadow
     public abstract boolean isCreative();
 
+    // BlockBreakEventを呼び出してる
     @Inject(method = "tryBreakBlock", at = @At("HEAD"), cancellable = true)
     private void blockBreakEvent(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         BlockState blockState = this.world.getBlockState(pos);

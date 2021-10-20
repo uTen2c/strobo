@@ -32,7 +32,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -121,14 +120,14 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
         return false;
     }
 
-    private double lastPosX = Double.MAX_VALUE;
-    private double lastPosY = Double.MAX_VALUE;
-    private double lastPosZ = Double.MAX_VALUE;
-    private float lastYaw = Float.MAX_VALUE;
-    private float lastPitch = Float.MAX_VALUE;
-    private boolean justTeleported;
-    private int allowedPlayerTicks = 1;
-    private int lastTick = 0;
+    private double strobo$lastPosX = Double.MAX_VALUE;
+    private double strobo$lastPosY = Double.MAX_VALUE;
+    private double strobo$lastPosZ = Double.MAX_VALUE;
+    private float strobo$lastYaw = Float.MAX_VALUE;
+    private float strobo$lastPitch = Float.MAX_VALUE;
+    private boolean strobo$justTeleported;
+    private int strobo$allowedPlayerTicks = 1;
+    private int strobo$lastTick = 0;
 
     @Redirect(method = "onDisconnected", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;broadcastChatMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/MessageType;Ljava/util/UUID;)V"))
     private void onQuit(PlayerManager playerManager, Text message, MessageType type, UUID senderUuid) {
@@ -137,12 +136,10 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
         playerManager.broadcastChatMessage(event.getMessage(), type, senderUuid);
     }
 
-    /**
-     * @author uTen2c
-     * @reason onPlayerMove  - From Paper
-     */
-    @Overwrite
-    public void onPlayerMove(PlayerMoveC2SPacket packet) {
+    // PlayerMoveEventを呼び出してる。PaperSpigotから移植
+    // @Overwrite
+    @Inject(method = "onPlayerMove", at = @At("HEAD"), cancellable = true)
+    public void callPlayerMoveEvent(PlayerMoveC2SPacket packet, CallbackInfo ci) {
         NetworkThreadUtils.forceMainThread(packet, this, this.player.getServerWorld());
         if (isMovementInvalid(packet.getX(0.0D), packet.getY(0.0D), packet.getZ(0.0D), packet.getYaw(0.0F), packet.getPitch(0.0F))) {
             this.disconnect(new TranslatableText("multiplayer.disconnect.invalid_player_movement"));
@@ -159,7 +156,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                         this.teleportRequestTick = this.ticks;
                         this.requestTeleport(this.requestedTeleportPos.x, this.requestedTeleportPos.y, this.requestedTeleportPos.z, this.player.getYaw(), this.player.getPitch());
                     }
-                    this.allowedPlayerTicks = 20; // CraftBukkit
+                    this.strobo$allowedPlayerTicks = 20; // CraftBukkit
                 } else {
                     this.teleportRequestTick = this.ticks;
                     double d0 = clampHorizontal(packet.getX(this.player.getX()));
@@ -171,7 +168,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                     if (this.player.hasVehicle()) {
                         this.player.updatePositionAndAngles(this.player.getX(), this.player.getY(), this.player.getZ(), g, h);
                         this.player.getServerWorld().getChunkManager().updatePosition(this.player);
-                        this.allowedPlayerTicks = 20; // CraftBukkit
+                        this.strobo$allowedPlayerTicks = 20; // CraftBukkit
                     } else {
                         // CraftBukkit - Make sure the move is valid but then reset it for plugins to modify
                         double prevX = this.player.getX();
@@ -211,19 +208,19 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                             int r = this.movePacketsCount - this.lastTickMovePacketsCount;
 
                             // CraftBukkit start - handle custom speeds and skipped ticks
-                            this.allowedPlayerTicks += (System.currentTimeMillis() / 50) - this.lastTick;
-                            this.allowedPlayerTicks = Math.max(this.allowedPlayerTicks, 1);
-                            this.lastTick = (int) (System.currentTimeMillis() / 50);
+                            this.strobo$allowedPlayerTicks += (System.currentTimeMillis() / 50) - this.strobo$lastTick;
+                            this.strobo$allowedPlayerTicks = Math.max(this.strobo$allowedPlayerTicks, 1);
+                            this.strobo$lastTick = (int) (System.currentTimeMillis() / 50);
 
-                            if (r > Math.max(this.allowedPlayerTicks, 5)) {
+                            if (r > Math.max(this.strobo$allowedPlayerTicks, 5)) {
                                 LOGGER.debug("{} is sending move packets too frequently ({} packets since last tick)", this.player.getName().getString(), r);
                                 r = 1;
                             }
 
                             if (packet.changesLook() || d11 > 0) {
-                                this.allowedPlayerTicks -= 1;
+                                this.strobo$allowedPlayerTicks -= 1;
                             } else {
-                                this.allowedPlayerTicks = 20;
+                                this.strobo$allowedPlayerTicks = 20;
                             }
                             double speed;
                             if (this.player.getAbilities().flying) {
@@ -245,7 +242,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                                     // CraftBukkit end
                                     LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName().getString(), d7, d8, d9);
                                     this.requestTeleport(this.player.getX(), this.player.getY(), this.player.getZ(), this.player.getYaw(), this.player.getPitch());
-                                    return;
+                                    ci.cancel();
                                 }
                             }
 
@@ -264,7 +261,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                             this.player.setOnGround(packet.isOnGround()); // CraftBukkit - SPIGOT-5810, SPIGOT-5835: reset by this.player.move
                             // Paper start - prevent position desync
                             if (this.requestedTeleportPos != null) {
-                                return; // ... thanks Mojang for letting move calls teleport across dimensions.
+                                ci.cancel(); // ... thanks Mojang for letting move calls teleport across dimensions.
                             }
                             // Paper end - prevent position desync
                             double d12 = d8;
@@ -290,7 +287,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                                 // Rest to old location first
                                 this.player.updatePositionAndAngles(prevX, prevY, prevZ, prevYaw, prevPitch);
 
-                                Location from = new Location(lastPosX, lastPosY, lastPosZ, lastYaw, lastPitch); // Get the Players previous Event location.
+                                Location from = new Location(strobo$lastPosX, strobo$lastPosY, strobo$lastPosZ, strobo$lastYaw, strobo$lastPitch); // Get the Players previous Event location.
                                 Location to = EntityKt.getLocation(player); // Start off the To location as the Players current location.
 
                                 // If the packet contains movement information then we update the To location with the correct XYZ.
@@ -307,15 +304,15 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                                 }
 
                                 // Prevent 40 event-calls for less than a single pixel of movement >.>
-                                double delta = Math.pow(this.lastPosX - to.getX(), 2) + Math.pow(this.lastPosY - to.getY(), 2) + Math.pow(this.lastPosZ - to.getZ(), 2);
-                                float deltaAngle = Math.abs(this.lastYaw - to.yaw) + Math.abs(this.lastPitch - to.pitch);
+                                double delta = Math.pow(this.strobo$lastPosX - to.getX(), 2) + Math.pow(this.strobo$lastPosY - to.getY(), 2) + Math.pow(this.strobo$lastPosZ - to.getZ(), 2);
+                                float deltaAngle = Math.abs(this.strobo$lastYaw - to.yaw) + Math.abs(this.strobo$lastPitch - to.pitch);
 
                                 if ((delta > 1f / 16384 || deltaAngle > 1f) && !this.player.isImmobile()) {
-                                    this.lastPosX = to.getX();
-                                    this.lastPosY = to.getY();
-                                    this.lastPosZ = to.getZ();
-                                    this.lastYaw = to.yaw;
-                                    this.lastPitch = to.pitch;
+                                    this.strobo$lastPosX = to.getX();
+                                    this.strobo$lastPosY = to.getY();
+                                    this.strobo$lastPosZ = to.getZ();
+                                    this.strobo$lastYaw = to.yaw;
+                                    this.strobo$lastPitch = to.pitch;
 
                                     // Skip the first time we do this
                                     if (from.getX() != Double.MAX_VALUE) {
@@ -326,7 +323,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                                         // If the event is cancelled we move the player back to their old location.
                                         if (event.isCancelled()) {
                                             this.requestTeleportAndDismount(from.x, from.y, from.z, from.yaw, from.pitch);
-                                            return;
+                                            ci.cancel();
                                         }
 
                                         // If a Plugin has changed the To destination then we teleport the Player
@@ -335,14 +332,14 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                                         if (!oldTo.equals(event.getTo()) && !event.isCancelled()) {
                                             // this.player.getBukkitEntity().teleport(event.getTo(), PlayerTeleportEvent.TeleportCause.PLUGIN); // Strobo - Paperの実装を変える
                                             ServerPlayerEntityKt.bukkitTp(this.player, event.getTo());
-                                            return;
+                                            ci.cancel();
                                         }
 
                                         // Check to see if the Players Location has some how changed during the call of the event.
                                         // This can happen due to a plugin teleporting the player instead of using .setTo()
-                                        if (!from.equals(EntityKt.getLocation(this.player)) && this.justTeleported) {
-                                            this.justTeleported = false;
-                                            return;
+                                        if (!from.equals(EntityKt.getLocation(this.player)) && this.strobo$justTeleported) {
+                                            this.strobo$justTeleported = false;
+                                            ci.cancel();
                                         }
                                     }
                                 }
@@ -370,28 +367,29 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                 }
             }
         }
+        ci.cancel();
     }
 
-    // From Paper
+    // PaperSpigotから移植
     @Inject(method = "requestTeleport(DDDFFLjava/util/Set;Z)V", at = @At(value = "FIELD", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;ticks:I"))
     private void setLastPos(double x, double y, double z, float yaw, float pitch, Set<PlayerPositionLookS2CPacket.Flag> flags, boolean shouldDismount, CallbackInfo ci) {
-        justTeleported = true;
+        strobo$justTeleported = true;
         if (requestedTeleportPos != null) {
-            lastPosX = requestedTeleportPos.x;
-            lastPosY = requestedTeleportPos.y;
-            lastPosZ = requestedTeleportPos.z;
-            lastYaw = yaw;
-            lastPitch = pitch;
+            strobo$lastPosX = requestedTeleportPos.x;
+            strobo$lastPosY = requestedTeleportPos.y;
+            strobo$lastPosZ = requestedTeleportPos.z;
+            strobo$lastYaw = yaw;
+            strobo$lastPitch = pitch;
         }
     }
 
     @Inject(method = "onUpdateSelectedSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;getHotbarSize()I", shift = At.Shift.AFTER))
-    private void onUpdateSelectedSlot(UpdateSelectedSlotC2SPacket packet, CallbackInfo ci) {
+    private void callPlayerItemHeldEvent(UpdateSelectedSlotC2SPacket packet, CallbackInfo ci) {
         new PlayerItemHeldEvent(player, player.getInventory().selectedSlot, packet.getSelectedSlot()).callEvent();
     }
 
     @Inject(method = "onPlayerAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getStackInHand(Lnet/minecraft/util/Hand;)Lnet/minecraft/item/ItemStack;", shift = At.Shift.AFTER), cancellable = true)
-    private void injectPlayerSwapItemsEvent(PlayerActionC2SPacket packet, CallbackInfo ci) {
+    private void callPlayerSwapHandItemsEvent(PlayerActionC2SPacket packet, CallbackInfo ci) {
         ItemStack mainHandStack = player.getMainHandStack();
         ItemStack offHandStack = player.getOffHandStack();
         PlayerSwapHandItemsEvent event = new PlayerSwapHandItemsEvent(player, mainHandStack, offHandStack);
@@ -401,7 +399,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     }
 
     @Redirect(method = "onClientCommand", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setSprinting(Z)V"))
-    private void sprinting(ServerPlayerEntity player, boolean isSprinting) {
+    private void callPlayerToggleSprintEvent(ServerPlayerEntity player, boolean isSprinting) {
         new PlayerToggleSprintEvent(player, isSprinting).callEvent();
         player.setSprinting(isSprinting);
     }

@@ -24,6 +24,7 @@ public abstract class MixinLivingEntity extends Entity {
         super(type, world);
     }
 
+    // EntityDamageEventとEntityDamageByEntityEventを呼び出してる
     @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
     private void callEntityDamageEvent(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity entity = ((LivingEntity) (Object) this);
