@@ -16,10 +16,18 @@ private typealias Child = CommandBuilder.() -> Unit
 @Suppress("unused")
 class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *>) {
 
-    fun requires(permLevel: Int) {
-        builder.requires { it.hasPermissionLevel(permLevel) }
+    /**
+     * コマンド実行に必要とするOPレベルを設定する
+     * @param opLevel op level
+     */
+    fun requires(opLevel: Int) {
+        builder.requires { it.hasPermissionLevel(opLevel) }
     }
 
+    /**
+     * コマンド実行に必要な条件を設定する
+     * @param filter フィルター処理
+     */
     fun requires(filter: (ServerCommandSource) -> Boolean) {
         builder.requires { filter(it) }
     }

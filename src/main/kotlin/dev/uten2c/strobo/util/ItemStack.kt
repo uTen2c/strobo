@@ -2,6 +2,9 @@ package dev.uten2c.strobo.util
 
 import net.minecraft.item.ItemStack
 
+/**
+ * [ItemStack]のカスタムモデルデータを扱う
+ */
 var ItemStack.customModelData: Int?
     get() = nbt?.getInt("CustomModelData")
     set(value) = when {
@@ -9,6 +12,9 @@ var ItemStack.customModelData: Int?
         else -> orCreateNbt.remove("CustomModelData")
     }
 
+/**
+ * [ItemStack]が同じものかを判定
+ */
 fun ItemStack.isSimilar(stack: ItemStack?): Boolean {
     return when (stack) {
         null -> false

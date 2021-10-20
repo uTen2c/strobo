@@ -17,6 +17,11 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.collection.DefaultedList
 import net.minecraft.screen.slot.Slot as MinecraftSlot
 
+/**
+ * [ScreenHandler]をサーバーサイドでいい感じにできるように拡張している
+ * @param type ScreenHandlerのタイプ
+ * @param syncId クライアントとやり取りするためのID
+ */
 abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : ScreenHandler(type, syncId) {
 
     private val blankInventory = BlankInventory()
@@ -25,6 +30,11 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
     val rows = getRowsByType(type)
     val size = rows * 9
 
+    /**
+     * [ScreenHandler]をサーバーサイドでいい感じにできるように拡張している
+     * @param rows チェストタイプの[ScreenHandler]における行数
+     * @param syncId クライアントとやり取りするためのID
+     */
     constructor(rows: Int, syncId: Int) : this(getTypeByRows(rows), syncId)
 
     override fun canUse(player: PlayerEntity?): Boolean = true
@@ -69,6 +79,11 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
             .forEach { updateScreenHandler(it) }
     }
 
+    /**
+     * プレイヤーのインベントリー領域にあたるスロットを追加する
+     * @param playerInventory 対象のプレイヤーのインベントリー
+     * @param canEdit プレイヤーインベントリーを操作できるか
+     */
     protected fun initPlayerInventorySlots(playerInventory: PlayerInventory, canEdit: Boolean) {
         for (y in 0 until 3) {
             for (x in 0 until 9) {
@@ -97,6 +112,9 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
         player.networkHandler.sendPacket(packet)
     }
 
+    /**
+     * 操作不可のスロットを追加
+     */
     protected fun addBlankSlot(): MinecraftSlot = addSlot(blankSlot)
 
     companion object {
@@ -110,6 +128,12 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
                 6 to ScreenHandlerType.GENERIC_9X6,
             )
         )
+
+        /**
+         * 操作不可を表すアイテム
+         * 黒いステンドグラスパネルでCustomModelDataは1
+         * リソースパックでこのアイテムを透明にする必要がある
+         */
         val disabledSlotStack = ItemStack(Items.BLACK_STAINED_GLASS_PANE).apply {
             setCustomName(text(""))
             customModelData = 1
@@ -120,13 +144,27 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
         private fun getRowsByType(type: ScreenHandlerType<*>): Int = typeMap.inverse().getOrDefault(type, 1)
     }
 
+    /**
+     * [MinecraftSlot]から座標データを省いたもの
+     * サーバーサイドでは座標を変えることができないので設定する必要がない
+     * @param inventory インベントリー
+     * @param index インデックス
+     */
     protected open class Slot(inventory: Inventory, index: Int) : MinecraftSlot(inventory, index, 0, 0)
 
+    /**
+     * 操作できないスロット
+     * @param inventory インベントリー
+     * @param index インデックス
+     */
     protected open class ImmutableSlot(inventory: Inventory, index: Int) : Slot(inventory, index) {
         override fun canInsert(stack: ItemStack?): Boolean = false
         override fun canTakeItems(playerEntity: PlayerEntity?): Boolean = false
     }
 
+    /**
+     * 操作不可領域に用いる[SimpleInventory]の拡張
+     */
     protected class BlankInventory : SimpleInventory(1) {
         override fun setStack(slot: Int, stack: ItemStack?) = super.setStack(0, stack)
         override fun getStack(slot: Int): ItemStack = super.getStack(0)

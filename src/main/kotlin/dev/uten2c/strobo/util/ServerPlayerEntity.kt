@@ -19,6 +19,9 @@ private val states = object : HashMap<ServerPlayerEntity, ListState>() {
 
 private data class ListState(var header: Text?, var footer: Text?, var name: Text?)
 
+/**
+ * プレイヤーリストのヘッダー部分に表示されるメッセージを設定する
+ */
 var ServerPlayerEntity.playerListHeader: Text?
     get() = states[this].header
     set(value) {
@@ -26,6 +29,9 @@ var ServerPlayerEntity.playerListHeader: Text?
         updatePlayerListHeaderAndFooter()
     }
 
+/**
+ * プレイヤーリストのフッター部分に表示されるメッセージを設定する
+ */
 var ServerPlayerEntity.playerListFooter: Text?
     get() = states[this].footer
     set(value) {
@@ -33,6 +39,9 @@ var ServerPlayerEntity.playerListFooter: Text?
         updatePlayerListHeaderAndFooter()
     }
 
+/**
+ * プレイヤーリストのヘッダー及びフッターのメッセージの変更をプレイヤーに伝える
+ */
 fun ServerPlayerEntity.updatePlayerListHeaderAndFooter() {
     val packet = PlayerListHeaderS2CPacket(
         playerListHeader ?: LiteralText.EMPTY,
@@ -41,14 +50,23 @@ fun ServerPlayerEntity.updatePlayerListHeaderAndFooter() {
     networkHandler.sendPacket(packet)
 }
 
+/**
+ * プレイヤーにタイトルを表示させる
+ */
 fun ServerPlayerEntity.sendTitle(title: Text?, subtitle: Text?, fadeIn: Int, stay: Int, fadeOut: Int) {
     networkHandler.sendPacket(TitleFadeS2CPacket(fadeIn, stay, fadeOut))
     networkHandler.sendPacket(SubtitleS2CPacket(subtitle ?: emptyText()))
     networkHandler.sendPacket(TitleS2CPacket(title ?: emptyText()))
 }
 
+/**
+ * プレイヤーに表示されているタイトルを消す
+ */
 fun ServerPlayerEntity.clearTitle() = networkHandler.sendPacket(ClearTitleS2CPacket(false))
 
+/**
+ * プレイヤーをリスポーンさせる
+ */
 fun ServerPlayerEntity.respawn() {
     val manager = server?.playerManager
     if (health <= 0 && manager?.getPlayer(uuid) != null) {
@@ -56,6 +74,9 @@ fun ServerPlayerEntity.respawn() {
     }
 }
 
+/**
+ * プレイヤーの飛行速度を設定する
+ */
 var ServerPlayerEntity.flySpeed: Float
     get() = abilities.flySpeed
     set(value) {
@@ -63,6 +84,10 @@ var ServerPlayerEntity.flySpeed: Float
         sendAbilitiesUpdate()
     }
 
+/**
+ * PaperSpigot内で使用されているテレポート処理をエミュレートする
+ * @param location 座標
+ */
 fun ServerPlayerEntity.bukkitTp(location: Location): Boolean {
     if (health == 0f || isRemoved) {
         return false

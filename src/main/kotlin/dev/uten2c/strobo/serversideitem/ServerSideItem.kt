@@ -9,8 +9,15 @@ import net.minecraft.util.registry.Registry
 
 interface ServerSideItem {
 
+    /**
+     * プレイヤーに送信されるアイテム
+     */
     val visualItem: Item
 
+    /**
+     * プレイヤーに送信されるアイテムを生成する
+     * @return 生成された[ItemStack]
+     */
     @Suppress("DEPRECATION")
     fun createVisualStack(itemStack: ItemStack): ItemStack {
         val stack: ItemStack = itemStack.copy()
@@ -28,6 +35,9 @@ interface ServerSideItem {
     }
 
     companion object {
+        /**
+         * サーバーサイドアイテムを識別するタグのID
+         */
         const val TAG_KEY = "0cf10e31-a339-43ca-9785-a01beb08e008"
     }
 }

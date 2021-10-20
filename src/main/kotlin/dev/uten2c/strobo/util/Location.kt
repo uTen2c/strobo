@@ -2,6 +2,10 @@ package dev.uten2c.strobo.util
 
 import net.minecraft.util.math.Vec3d
 
+/**
+ * [Vec3d]の拡張
+ * yaw及びpitchが含まれる
+ */
 class Location(x: Double, y: Double, z: Double, @JvmField val yaw: Float, @JvmField val pitch: Float) : Vec3d(x, y, z) {
 
     val vec = Vec3d(x, y, z)

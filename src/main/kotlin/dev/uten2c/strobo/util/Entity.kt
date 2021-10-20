@@ -10,6 +10,9 @@ import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 
+/**
+ * エンティティの見ている向きのベクトルを取得
+ */
 val Entity.direction: Vec3d
     get() {
         val x = -MathHelper.sin(yaw * 0.017453292f) * MathHelper.cos(pitch * 0.017453292f)
@@ -18,9 +21,16 @@ val Entity.direction: Vec3d
         return Vec3d(x.toDouble(), y.toDouble(), z.toDouble()).normalize()
     }
 
+/**
+ * エンティティの座標系を取得
+ */
 val Entity.location: Location
     get() = Location(x, y, z, yaw, pitch)
 
+/**
+ * PaperSpigot内で使用されているテレポート処理をエミュレートする
+ * @param location 座標
+ */
 fun Entity.bukkitTp(location: Location) {
     val x = location.x
     val y = location.y
