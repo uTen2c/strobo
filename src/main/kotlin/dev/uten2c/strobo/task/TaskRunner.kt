@@ -7,7 +7,7 @@ object TaskRunner {
 
     internal val tasks = ArrayList<Task>()
 
-    fun setup() {
+    internal fun setup() {
         listenEvent<ServerEndTickEvent> {
             tasks.removeAll {
                 if (it.delay <= 0) {
