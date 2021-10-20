@@ -1,15 +1,17 @@
+@file:JvmName("TaskUtils")
+
 package dev.uten2c.strobo.task
 
-fun nextTick(block: () -> Unit) {
-    TaskRunner.tasks.add(TaskRunner.Task(1, block))
+fun nextTick(runnable: Runnable) {
+    TaskRunner.tasks.add(TaskRunner.Task(1, runnable))
 }
 
-fun runSync(block: () -> Unit) {
-    TaskRunner.tasks.add(TaskRunner.Task(0, block))
+fun runSync(runnable: Runnable) {
+    TaskRunner.tasks.add(TaskRunner.Task(0, runnable))
 }
 
-fun waitAndRun(ticks: Long, block: () -> Unit) {
-    TaskRunner.tasks.add(TaskRunner.Task(ticks, block))
+fun waitAndRun(ticks: Long, runnable: Runnable) {
+    TaskRunner.tasks.add(TaskRunner.Task(ticks, runnable))
 }
 
 @Deprecated("renamed", ReplaceWith("waitAndRun(ticks, block)"))

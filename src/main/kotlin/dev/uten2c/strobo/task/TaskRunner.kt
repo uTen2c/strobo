@@ -11,7 +11,7 @@ object TaskRunner {
         listenEvent<ServerEndTickEvent> {
             tasks.removeAll {
                 if (it.delay <= 0) {
-                    it.task()
+                    it.task.run()
                     true
                 } else {
                     it.delay--
@@ -21,5 +21,5 @@ object TaskRunner {
         }
     }
 
-    internal data class Task(var delay: Long, val task: () -> Unit)
+    internal data class Task(var delay: Long, val task: Runnable)
 }
