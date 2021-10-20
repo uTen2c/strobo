@@ -21,7 +21,6 @@ public class MixinCommandManager {
     private CommandDispatcher<ServerCommandSource> dispatcher;
 
     // コマンド登録用関数の呼び出し
-    @SuppressWarnings("deprecation")
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;findAmbiguities(Lcom/mojang/brigadier/AmbiguityConsumer;)V"), remap = false)
     private void addCommands(CommandManager.RegistrationEnvironment environment, CallbackInfo ci) {
         Strobo.registerCommand(dispatcher);

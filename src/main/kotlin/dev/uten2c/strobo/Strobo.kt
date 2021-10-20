@@ -8,6 +8,7 @@ import dev.uten2c.strobo.task.TaskRunner
 import net.fabricmc.api.ModInitializer
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
+import org.jetbrains.annotations.ApiStatus
 import kotlin.reflect.KClass
 
 object Strobo : ModInitializer {
@@ -23,7 +24,7 @@ object Strobo : ModInitializer {
     }
 
     @JvmStatic
-    @Deprecated("Internal API", ReplaceWith(""))
+    @ApiStatus.Internal
     fun registerCommand(dispatcher: CommandDispatcher<ServerCommandSource>) {
         commands.forEach {
             dispatcher.register(it.builder)
