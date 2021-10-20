@@ -7,14 +7,25 @@ import dev.uten2c.strobo.Strobo
  */
 abstract class Event {
 
+    lateinit var eventListener: EventListener
+        private set
+
     /**
      * イベントを呼び出す
      * @return キャンセルされたらfalseが帰る
      */
     fun callEvent(): Boolean {
         val set = Strobo.eventListeners.getOrDefault(this::class, HashSet())
-        set.forEach { it.handler(this) }
+        set.forEach {
+            try {
+                this.eventListener = it
+                it.handler(this)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
         set.removeAll(removeHandlers)
+        removeHandlers.clear()
         Strobo.eventListeners[this::class] = set
         return if (this is CancellableEvent) !isCancelled else true
     }

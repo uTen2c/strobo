@@ -16,9 +16,8 @@ inline fun <reified T : Event> listenEvent(noinline handler: (T) -> Unit): Event
 @ApiStatus.Internal
 fun internalListenEvent(clazz: KClass<out Event>, handler: (Event) -> Unit): EventListener {
     val eventListener = EventListener(clazz, handler)
-    Strobo.eventListeners[clazz] =
-        Strobo.eventListeners.getOrDefault(clazz, HashSet()).apply {
-            add(eventListener)
-        }
+    Strobo.eventListeners[clazz] = Strobo.eventListeners.getOrDefault(clazz, HashSet()).apply {
+        add(eventListener)
+    }
     return eventListener
 }
