@@ -13,6 +13,7 @@
     "event.MixinServerPlayerInteractionManager",
     "event.MixinServerPlayNetworkHandler",
     "impl.MixinPlayerInventory",
+    "playerlist.MixinServerPlayerEntity",
     "serversideitem.MixinEntityTrackerUpdateS2CPacket",
     "serversideitem.MixinPacketByteBuf",
     "serversideitem.MixinServerPlayNetworkHandler"

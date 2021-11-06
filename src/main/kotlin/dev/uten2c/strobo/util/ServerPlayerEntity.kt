@@ -20,6 +20,23 @@ private val states = object : HashMap<ServerPlayerEntity, ListState>() {
 private data class ListState(var header: Text?, var footer: Text?, var name: Text?)
 
 /**
+ * プレイヤーリストの名前を設定する
+ */
+var ServerPlayerEntity.listName: Text?
+    get() = states[this].name
+    set(value) {
+        states[this].name = value
+    }
+
+/**
+ * プレイヤーリストの名前の変更をプレイヤー全体に伝える
+ */
+fun ServerPlayerEntity.updateListName() {
+    val packet = PlayerListS2CPacket(PlayerListS2CPacket.Action.UPDATE_DISPLAY_NAME, this)
+    server.playerManager.sendToAll(packet)
+}
+
+/**
  * プレイヤーリストのヘッダー部分に表示されるメッセージを設定する
  */
 var ServerPlayerEntity.playerListHeader: Text?
