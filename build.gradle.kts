@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "dev.uten2c"
-version = "39"
+version = "40"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_16
@@ -49,6 +49,7 @@ dependencies {
     modIncludeImplementation(fabricApi.module("fabric-api-base", "0.41.0+1.17"))
     modIncludeImplementation(fabricApi.module("fabric-resource-loader-v0", "0.41.0+1.17"))
     modIncludeImplementation(fabricApi.module("fabric-gametest-api-v1", "0.41.0+1.17"))
+    modIncludeImplementation(fabricApi.module("fabric-registry-sync-v0", "0.41.0+1.17"))
 }
 
 loom {

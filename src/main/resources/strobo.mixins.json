@@ -4,6 +4,7 @@
   "package": "dev.uten2c.strobo.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "MixinRegistrySyncManager",
     "command.MixinCommandManager",
     "event.MixinItemEntity",
     "event.MixinLivingEntity",
