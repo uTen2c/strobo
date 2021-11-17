@@ -2,12 +2,14 @@
 
 package dev.uten2c.strobo.task
 
+data class Task(internal var delay: Long, val runnable: Runnable, var cancelled: Boolean = false)
+
 /**
  * 次のティックの終わりに実行
  * @param runnable 実行する内容
  */
 fun nextTick(runnable: Runnable) {
-    TaskRunner.tasks.add(TaskRunner.Task(1, runnable))
+    TaskRunner.tasks.add(Task(1, runnable))
 }
 
 /**
@@ -15,7 +17,7 @@ fun nextTick(runnable: Runnable) {
  * @param runnable 実行する内容
  */
 fun runSync(runnable: Runnable) {
-    TaskRunner.tasks.add(TaskRunner.Task(0, runnable))
+    TaskRunner.tasks.add(Task(0, runnable))
 }
 
 /**
@@ -23,8 +25,10 @@ fun runSync(runnable: Runnable) {
  * @param ticks 待つティック数
  * @param runnable 実行する内容
  */
-fun waitAndRun(ticks: Long, runnable: Runnable) {
-    TaskRunner.tasks.add(TaskRunner.Task(ticks, runnable))
+fun waitAndRun(ticks: Long, runnable: Runnable): Task {
+    val task = Task(ticks, runnable)
+    TaskRunner.tasks.add(task)
+    return task
 }
 
 @Deprecated("renamed", ReplaceWith("waitAndRun(ticks, block)"))

@@ -10,8 +10,12 @@ object TaskRunner {
     internal fun setup() {
         listenEvent<ServerEndTickEvent> {
             tasks.removeAll {
+                if (it.cancelled) {
+                    return@removeAll true
+                }
+
                 if (it.delay <= 0) {
-                    it.task.run()
+                    it.runnable.run()
                     true
                 } else {
                     it.delay--
@@ -20,6 +24,4 @@ object TaskRunner {
             }
         }
     }
-
-    internal data class Task(var delay: Long, val task: Runnable)
 }
