@@ -1,10 +1,7 @@
 package dev.uten2c.strobo.mixin.event;
 
 import com.mojang.authlib.GameProfile;
-import dev.uten2c.strobo.event.player.PlayerDeathEvent;
-import dev.uten2c.strobo.event.player.PlayerDropItemEvent;
-import dev.uten2c.strobo.event.player.PlayerStartSpectatingEntityEvent;
-import dev.uten2c.strobo.event.player.PlayerStopSpectatingEntityEvent;
+import dev.uten2c.strobo.event.player.*;
 import dev.uten2c.strobo.util.ItemStackKt;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
@@ -24,6 +21,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class MixinServerPlayerEntity extends PlayerEntity {
@@ -39,6 +37,9 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity {
 
     @Shadow
     public abstract void requestTeleport(double destX, double destY, double destZ);
+
+    @Shadow
+    public abstract boolean startRiding(Entity entity, boolean force);
 
     public MixinServerPlayerEntity(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
@@ -76,6 +77,16 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity {
     @Inject(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;dropShoulderEntities()V"))
     private void onDeath(DamageSource source, CallbackInfo ci) {
         new PlayerDeathEvent((ServerPlayerEntity) (Object) this).callEvent();
+    }
+
+    @Inject(method = "dropSelectedItem", at = @At("HEAD"), cancellable = true)
+    private void onDropSelectedItem(boolean entireStack, CallbackInfoReturnable<Boolean> cir) {
+        var inventory = getInventory();
+        var stack = inventory.getMainHandStack();
+        var event = new PlayerDropSelectedItemEvent((ServerPlayerEntity) (Object) this, stack, entireStack);
+        if (!event.callEvent()) {
+            cir.cancel();
+        }
     }
 
     public ItemEntity dropItem(ItemStack stack, boolean throwRandomly, boolean retainOwnership) {
