@@ -3,13 +3,13 @@ import net.fabricmc.loom.task.RemapSourcesJarTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.30"
-    id("fabric-loom") version "0.9-SNAPSHOT"
+    kotlin("jvm") version "1.6.0"
+    id("fabric-loom") version "0.10-SNAPSHOT"
     `maven-publish`
 }
 
 group = "dev.uten2c"
-version = "41"
+version = "42"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_16
@@ -42,14 +42,14 @@ fun DependencyHandlerScope.modIncludeImplementation(dep: Any) {
 }
 
 dependencies {
-    minecraft(group = "com.mojang", name = "minecraft", version = "1.17.1")
-    mappings(group = "net.fabricmc", name = "yarn", version = "1.17.1+build.61", classifier = "v2")
-    modImplementation("net.fabricmc:fabric-loader:0.11.6")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.6.5+kotlin.1.5.31")
-    modIncludeImplementation(fabricApi.module("fabric-api-base", "0.41.0+1.17"))
-    modIncludeImplementation(fabricApi.module("fabric-resource-loader-v0", "0.41.0+1.17"))
-    modIncludeImplementation(fabricApi.module("fabric-gametest-api-v1", "0.41.0+1.17"))
-    modIncludeImplementation(fabricApi.module("fabric-registry-sync-v0", "0.41.0+1.17"))
+    minecraft("com.mojang:minecraft:1.18")
+    mappings("net.fabricmc:yarn:1.18+build.1:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.12.8")
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.7.0+kotlin.1.6.0")
+    modIncludeImplementation(fabricApi.module("fabric-api-base", "0.43.1+1.18"))
+    modIncludeImplementation(fabricApi.module("fabric-resource-loader-v0", "0.43.1+1.18"))
+    modIncludeImplementation(fabricApi.module("fabric-gametest-api-v1", "0.43.1+1.18"))
+    modIncludeImplementation(fabricApi.module("fabric-registry-sync-v0", "0.43.1+1.18"))
 }
 
 loom {
@@ -78,7 +78,7 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "16"
+        jvmTarget = "17"
     }
 }
 
@@ -108,7 +108,6 @@ publishing {
     repositories {
         maven {
             url = uri("${System.getProperty("user.home")}/private-repo")
-            println(uri("${System.getProperty("user.home")}/private-repo"))
         }
     }
 }

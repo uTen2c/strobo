@@ -40,7 +40,7 @@ fun Entity.bukkitTp(location: Location) {
 
     if (this is ServerPlayerEntity) {
         val chunkPos = ChunkPos(BlockPos(x, y, z))
-        serverWorld.chunkManager.addTicket(ChunkTicketType.POST_TELEPORT, chunkPos, 1, id)
+        getWorld().chunkManager.addTicket(ChunkTicketType.POST_TELEPORT, chunkPos, 1, id)
         stopRiding()
         if (isSleeping) {
             wakeUp(true, true)

@@ -129,22 +129,22 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     private int strobo$allowedPlayerTicks = 1;
     private int strobo$lastTick = 0;
 
-    @Redirect(method = "onDisconnected", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;broadcastChatMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/MessageType;Ljava/util/UUID;)V"))
+    @Redirect(method = "onDisconnected", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Lnet/minecraft/network/MessageType;Ljava/util/UUID;)V"))
     private void onQuit(PlayerManager playerManager, Text message, MessageType type, UUID senderUuid) {
         PlayerQuitEvent event = new PlayerQuitEvent(player, message);
         event.callEvent();
-        playerManager.broadcastChatMessage(event.getMessage(), type, senderUuid);
+        playerManager.broadcast(event.getMessage(), type, senderUuid);
     }
 
     // PlayerMoveEventを呼び出してる。PaperSpigotから移植
     // @Overwrite
     @Inject(method = "onPlayerMove", at = @At("HEAD"), cancellable = true)
     public void callPlayerMoveEvent(PlayerMoveC2SPacket packet, CallbackInfo ci) {
-        NetworkThreadUtils.forceMainThread(packet, this, this.player.getServerWorld());
+        NetworkThreadUtils.forceMainThread(packet, this, this.player.getWorld());
         if (isMovementInvalid(packet.getX(0.0D), packet.getY(0.0D), packet.getZ(0.0D), packet.getYaw(0.0F), packet.getPitch(0.0F))) {
             this.disconnect(new TranslatableText("multiplayer.disconnect.invalid_player_movement"));
         } else {
-            ServerWorld serverWorld = this.player.getServerWorld();
+            ServerWorld serverWorld = this.player.getWorld();
 
             if (!this.player.notInAnyWorld && !this.player.isImmobile()) { // CraftBukkit
                 if (this.ticks == 0) {
@@ -167,7 +167,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
 
                     if (this.player.hasVehicle()) {
                         this.player.updatePositionAndAngles(this.player.getX(), this.player.getY(), this.player.getZ(), g, h);
-                        this.player.getServerWorld().getChunkManager().updatePosition(this.player);
+                        this.player.getWorld().getChunkManager().updatePosition(this.player);
                         this.strobo$allowedPlayerTicks = 20; // CraftBukkit
                     } else {
                         // CraftBukkit - Make sure the move is valid but then reset it for plugins to modify
@@ -235,7 +235,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                             // }
                             // Paper end
 
-                            if (!this.player.isInTeleportationState() && (!this.player.getServerWorld().getGameRules().getBoolean(GameRules.DISABLE_ELYTRA_MOVEMENT_CHECK) || !this.player.isFallFlying())) {
+                            if (!this.player.isInTeleportationState() && (!this.player.getWorld().getGameRules().getBoolean(GameRules.DISABLE_ELYTRA_MOVEMENT_CHECK) || !this.player.isFallFlying())) {
                                 float f2 = this.player.isFallFlying() ? 300.0F : 100.0F;
 
                                 if (d11 - d10 > Math.max(f2, Math.pow(10.0 * (float) r * speed, 2)) && !this.isHost()) {
@@ -348,7 +348,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                                 // MC-135989, SPIGOT-5564: isRiptiding
                                 this.floating = d12 >= -0.03125D && this.player.interactionManager.getGameMode() != GameMode.SPECTATOR && !this.server.isFlightEnabled() && !this.player.getAbilities().allowFlying && !this.player.hasStatusEffect(StatusEffects.LEVITATION) && !this.player.isFallFlying() && this.isEntityOnAir(this.player) && !this.player.isUsingRiptide();
                                 // CraftBukkit end
-                                this.player.getServerWorld().getChunkManager().updatePosition(this.player);
+                                this.player.getWorld().getChunkManager().updatePosition(this.player);
                                 this.player.handleFall(this.player.getY() - l, packet.isOnGround());
                                 // this.player.setOnGround(packet.isOnGround()); // CraftBukkit - moved up
                                 if (flag) {

@@ -86,7 +86,7 @@ fun MutableText.strikethrough(strikethrough: Boolean): MutableText = setStyle(st
  * @param obfuscated 難読化されているか
  * @return 適用後の[MutableText]
  */
-fun MutableText.obfuscated(obfuscated: Boolean): MutableText = setStyle(style.obfuscated(obfuscated))
+fun MutableText.obfuscated(obfuscated: Boolean): MutableText = setStyle(style.withObfuscated(obfuscated))
 
 /**
  * [Style.withClickEvent]のエイリアス
