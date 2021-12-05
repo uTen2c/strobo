@@ -16,13 +16,16 @@ abstract class Event {
      */
     fun callEvent(): Boolean {
         val set = Strobo.eventListeners.getOrDefault(this::class, HashSet())
-        set.forEach {
-            try {
-                this.eventListener = it
-                it.handler(this)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        EventPriority.values().forEach { priority ->
+            set.filter { it.priority == priority }
+                .forEach {
+                    try {
+                        this.eventListener = it
+                        it.handler(this)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
         }
         set.removeAll(removeHandlers)
         removeHandlers.clear()

@@ -6,6 +6,7 @@
   "environment": "server",
   "entrypoints": {
     "fabric-gametest": [
+      "test.EventPriorityTest",
       "test.EventTests"
     ]
   }
