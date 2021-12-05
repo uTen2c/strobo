@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "dev.uten2c"
-version = "42"
+version = "43"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_16
@@ -90,19 +90,17 @@ val sourcesJar = tasks.create<Jar>("sourcesJar") {
     from(sourceSets["main"].allSource)
 }
 
+java {
+    withSourcesJar()
+}
+
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        create<MavenPublication>("mavenJava") {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
-
-            artifact(remapJar) {
-                builtBy(remapJar)
-            }
-            artifact(sourcesJar) {
-                builtBy(remapSourcesJar)
-            }
+            from(components["java"])
         }
     }
     repositories {
