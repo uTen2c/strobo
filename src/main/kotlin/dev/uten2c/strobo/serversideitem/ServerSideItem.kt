@@ -3,7 +3,6 @@ package dev.uten2c.strobo.serversideitem
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Style
-import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.registry.Registry
 
@@ -20,11 +19,11 @@ interface ServerSideItem {
      */
     @Suppress("DEPRECATION")
     fun createVisualStack(itemStack: ItemStack): ItemStack {
-        val stack: ItemStack = itemStack.copy()
-        val item: Item = stack.getItem()
+        val stack = itemStack.copy()
+        val item = stack.getItem()
         val id = Registry.ITEM.getId(item)
         val translationKey = "item." + id.namespace + "." + id.path
-        val customName: Text = TranslatableText(translationKey).setStyle(Style.EMPTY.withItalic(false))
+        val customName = TranslatableText(translationKey).setStyle(Style.EMPTY.withItalic(false))
         stack.item = visualItem
         if (!stack.hasCustomName()) {
             stack.setCustomName(customName)

@@ -68,7 +68,6 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
         }
 
         sendContentUpdates()
-        return
     }
 
     // ServerPlayerEntityで毎チック呼ばれてるのでそこどうにかすれば処理回数減らせるかも
@@ -85,15 +84,15 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
      * @param canEdit プレイヤーインベントリーを操作できるか
      */
     protected fun initPlayerInventorySlots(playerInventory: PlayerInventory, canEdit: Boolean) {
-        for (y in 0 until 3) {
-            for (x in 0 until 9) {
+        repeat(3) { y ->
+            repeat(9) { x ->
                 addSlot(object : Slot(playerInventory, x + y * 9 + 9) {
                     override fun canInsert(stack: ItemStack?): Boolean = canEdit
                     override fun canTakeItems(playerEntity: PlayerEntity?): Boolean = canEdit
                 })
             }
         }
-        for (x in 0 until 9) {
+        repeat(9) { x ->
             addSlot(object : Slot(playerInventory, x) {
                 override fun canInsert(stack: ItemStack?): Boolean = canEdit
                 override fun canTakeItems(playerEntity: PlayerEntity?): Boolean = canEdit
