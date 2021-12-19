@@ -4,12 +4,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.6.0"
+    kotlin("plugin.serialization") version "1.6.0"
     id("fabric-loom") version "0.10-SNAPSHOT"
     `maven-publish`
 }
 
 group = "dev.uten2c"
-version = "44"
+version = "45"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_16

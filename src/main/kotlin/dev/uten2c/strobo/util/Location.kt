@@ -1,11 +1,14 @@
 package dev.uten2c.strobo.util
 
+import dev.uten2c.strobo.serialize.LocationSerializer
+import kotlinx.serialization.Serializable
 import net.minecraft.util.math.Vec3d
 
 /**
  * [Vec3d]の拡張
  * yaw及びpitchが含まれる
  */
+@Serializable(with = LocationSerializer::class)
 class Location(x: Double, y: Double, z: Double, @JvmField val yaw: Float, @JvmField val pitch: Float) : Vec3d(x, y, z) {
 
     val vec = Vec3d(x, y, z)
