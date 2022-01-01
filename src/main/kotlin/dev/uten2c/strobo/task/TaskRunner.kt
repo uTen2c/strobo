@@ -6,6 +6,7 @@ import dev.uten2c.strobo.event.server.ServerEndTickEvent
 object TaskRunner {
 
     internal val tasks = ArrayList<Task>()
+    internal val timerTasks = ArrayList<TimerTask>()
 
     internal fun setup() {
         listenEvent<ServerEndTickEvent> {
@@ -22,6 +23,7 @@ object TaskRunner {
                     false
                 }
             }
+            timerTasks.removeAll(TimerTask::tick)
         }
     }
 }

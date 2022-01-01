@@ -8,7 +8,8 @@
     "fabric-gametest": [
       "test.EventPriorityTest",
       "test.EventTests",
-      "test.SerializeTest"
+      "test.SerializeTest",
+      "test.TaskTest"
     ]
   }
 }
