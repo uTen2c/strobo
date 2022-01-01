@@ -18,6 +18,7 @@ abstract class Event {
         val set = Strobo.eventListeners.getOrDefault(this::class, HashSet())
         EventPriority.values().forEach { priority ->
             set.filter { it.priority == priority }
+                .filter { !it.unlistened }
                 .forEach {
                     try {
                         this.eventListener = it
@@ -27,13 +28,7 @@ abstract class Event {
                     }
                 }
         }
-        set.removeAll(removeHandlers)
-        removeHandlers.clear()
         Strobo.eventListeners[this::class] = set
         return if (this is CancellableEvent) !isCancelled else true
-    }
-
-    companion object {
-        internal val removeHandlers = HashSet<EventListener>()
     }
 }
