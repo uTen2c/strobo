@@ -57,12 +57,32 @@ fun waitAndRun(ticks: Long, runnable: Runnable): Task {
     return task
 }
 
+/**
+ * 指定ティック毎に実行する
+ * @param delay 待つティック数
+ * @param period 処理の待ち時間
+ * @param consumer 実行する内容
+ */
 fun runTimer(delay: Long, period: Long, consumer: Consumer<Long>): TimerTask =
     runTimer(delay, period, Long.MAX_VALUE, consumer)
 
+/**
+ * 指定ティック毎に実行する
+ * @param delay 待つティック数
+ * @param period 処理の待ち時間
+ * @param times 実行回数
+ * @param consumer 実行する内容
+ */
 fun runTimer(delay: Long, period: Long, times: Long, consumer: Consumer<Long>): TimerTask =
     runTimer(delay, period, { i -> times <= i }, consumer)
 
+/**
+ * 指定ティック毎に実行する
+ * @param delay 待つティック数
+ * @param period 処理の待ち時間
+ * @param predicate 終了条件
+ * @param consumer 実行する内容
+ */
 fun runTimer(delay: Long, period: Long, predicate: Predicate<Long>, consumer: Consumer<Long>): TimerTask {
     val task = TimerTask(delay, period, predicate, consumer)
     TaskRunner.timerTasks.add(task)
