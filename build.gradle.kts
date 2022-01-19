@@ -3,18 +3,18 @@ import net.fabricmc.loom.task.RemapSourcesJarTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.0"
-    kotlin("plugin.serialization") version "1.6.0"
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.serialization") version "1.6.10"
     id("fabric-loom") version "0.10-SNAPSHOT"
     `maven-publish`
 }
 
 group = "dev.uten2c"
-version = "48"
+version = "49"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 sourceSets {
@@ -44,13 +44,13 @@ fun DependencyHandlerScope.modIncludeImplementation(dep: Any) {
 
 dependencies {
     minecraft("com.mojang:minecraft:1.18.1")
-    mappings("net.fabricmc:yarn:1.18.1+build.2:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.12.11")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.7.0+kotlin.1.6.0")
-    modIncludeImplementation(fabricApi.module("fabric-api-base", "0.44.0+1.18"))
-    modIncludeImplementation(fabricApi.module("fabric-resource-loader-v0", "0.44.0+1.18"))
-    modIncludeImplementation(fabricApi.module("fabric-gametest-api-v1", "0.44.0+1.18"))
-    modIncludeImplementation(fabricApi.module("fabric-registry-sync-v0", "0.44.0+1.18"))
+    mappings("net.fabricmc:yarn:1.18.1+build.22:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.12.12")
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.7.1+kotlin.1.6.10")
+    modIncludeImplementation(fabricApi.module("fabric-api-base", "0.46.1+1.18"))
+    modIncludeImplementation(fabricApi.module("fabric-resource-loader-v0", "0.46.1+1.18"))
+    modIncludeImplementation(fabricApi.module("fabric-gametest-api-v1", "0.46.1+1.18"))
+    modIncludeImplementation(fabricApi.module("fabric-registry-sync-v0", "0.46.1+1.18"))
 }
 
 loom {
