@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.command.argument.*
 import net.minecraft.server.command.ServerCommandSource
 import java.util.concurrent.CompletableFuture
+import kotlin.reflect.KClass
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument as arg
 
 private typealias Child = CommandBuilder.() -> Unit
@@ -32,12 +33,7 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
         builder.requires { filter(it) }
     }
 
-    fun literal(literal: String, child: Child) {
-        val arg = literal<ServerCommandSource>(literal)
-        child(CommandBuilder(arg))
-        builder.then(arg)
-    }
-
+    fun literal(literal: String, child: Child) = next(literal(literal), child)
     fun angle(name: String, child: Child) = next(arg(name, AngleArgumentType.angle()), child)
     fun blockPos(name: String, child: Child) = next(arg(name, BlockPosArgumentType.blockPos()), child)
     fun blockPredicate(name: String, child: Child) = next(arg(name, BlockPredicateArgumentType.blockPredicate()), child)
@@ -86,6 +82,14 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     fun vec3(name: String, centerIntegers: Boolean = true, child: Child) = next(arg(name, Vec3ArgumentType.vec3(centerIntegers)), child)
     fun word(name: String, child: Child) = next(arg(name, StringArgumentType.word()), child)
 
+    fun <T : Enum<*>> enum(enum: KClass<T>, child: CommandBuilder.(T) -> Unit) {
+        enum.java.enumConstants.forEach { item ->
+            val arg = literal<ServerCommandSource>(item.name.lowercase())
+            child(CommandBuilder(arg), item)
+            builder.then(arg)
+        }
+    }
+
     fun executes(executes: CommandContext.() -> Unit) {
         builder.executes {
             executes(CommandContext(it))
@@ -100,7 +104,7 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
         }
     }
 
-    private fun next(arg: RequiredArgumentBuilder<ServerCommandSource, *>, child: Child) {
+    private fun next(arg: ArgumentBuilder<ServerCommandSource, *>, child: Child) {
         child(CommandBuilder(arg))
         builder.then(arg)
     }
