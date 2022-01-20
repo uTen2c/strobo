@@ -12,6 +12,11 @@ import org.jetbrains.annotations.ApiStatus
 import kotlin.reflect.KClass
 
 object Strobo : ModInitializer {
+    @JvmField
+    var replaceGiveCommand = true
+
+    @JvmField
+    var replaceSummonCommand = true
 
     internal val commands = HashSet<Command>()
     internal val eventListeners = HashMap<KClass<out Event>, HashSet<EventListener>>()

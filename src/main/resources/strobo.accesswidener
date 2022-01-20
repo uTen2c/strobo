@@ -21,3 +21,9 @@ accessible method net/minecraft/entity/player/PlayerEntity isImmobile ()Z
 
 # ScreenHandler
 accessible field net/minecraft/screen/ScreenHandler listeners Ljava/util/List;
+
+# SummonCommand
+accessible method net/minecraft/server/command/SummonCommand execute (Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/util/Identifier;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/nbt/NbtCompound;Z)I
+
+# GiveCommand
+accessible method net/minecraft/server/command/GiveCommand execute (Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/command/argument/ItemStackArgument;Ljava/util/Collection;I)I
