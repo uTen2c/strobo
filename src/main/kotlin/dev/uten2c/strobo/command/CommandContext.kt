@@ -39,6 +39,10 @@ class CommandContext(private val context: CommandContext<ServerCommandSource>) {
     val world: ServerWorld get() = source.world
     val player: ServerPlayerEntity get() = source.player
 
+    fun sendFeedback(message: Text, broadcastToOps: Boolean = false) = source.sendFeedback(message, broadcastToOps)
+
+    fun sendError(message: Text) = source.sendError(message)
+
     fun getAdvancement(name: String): Advancement = IdentifierArgumentType.getAdvancementArgument(context, name)
     fun getAngle(name: String): Float = AngleArgumentType.getAngle(context, name)
     fun getBlockPos(name: String): BlockPos = BlockPosArgumentType.getBlockPos(context, name)
