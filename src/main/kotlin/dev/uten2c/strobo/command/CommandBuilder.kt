@@ -16,13 +16,21 @@ private typealias Child = CommandBuilder.() -> Unit
 
 @Suppress("unused")
 class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *>) {
+    internal var filter: ((ServerCommandSource) -> Boolean)? = null
+        private set
+    internal var aliases: List<String>? = null
+        private set
+    internal var executes: (CommandContext.() -> Unit)? = null
+        private set
 
     /**
      * コマンド実行に必要とするOPレベルを設定する
      * @param opLevel op level
      */
     fun requires(opLevel: Int) {
-        builder.requires { it.hasPermissionLevel(opLevel) }
+        val requirement: (ServerCommandSource) -> Boolean = { it.hasPermissionLevel(opLevel) }
+        builder.requires { requirement(it) }
+        this.filter = requirement
     }
 
     /**
@@ -31,6 +39,11 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      */
     fun requires(filter: (ServerCommandSource) -> Boolean) {
         builder.requires { filter(it) }
+        this.filter = filter
+    }
+
+    fun aliases(vararg aliases: String) {
+        this.aliases = listOf(*aliases)
     }
 
     /**
@@ -289,6 +302,7 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
             executes(CommandContext(it))
             0
         }
+        this.executes = executes
     }
 
     @Suppress("UNCHECKED_CAST")
