@@ -5,7 +5,7 @@ import net.minecraft.server.command.GiveCommand
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 
-object StroboGiveCommand {
+internal object StroboGiveCommand {
     @JvmStatic
     fun register() {
         registerCommand("give") {

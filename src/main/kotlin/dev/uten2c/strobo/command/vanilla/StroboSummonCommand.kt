@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 
-object StroboSummonCommand {
+internal object StroboSummonCommand {
     @JvmStatic
     fun register() {
         registerCommand("summon") {
