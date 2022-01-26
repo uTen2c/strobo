@@ -27,7 +27,7 @@ public class MixinCommandManager {
     // コマンド登録用関数の呼び出し
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;findAmbiguities(Lcom/mojang/brigadier/AmbiguityConsumer;)V"), remap = false)
     private void addCommands(CommandManager.RegistrationEnvironment environment, CallbackInfo ci) {
-        Strobo.registerCommand(dispatcher);
+        dev.uten2c.strobo.command.CommandManager.registerCommand(dispatcher);
     }
 
     // デバッグ出力をいつでも有効化させる

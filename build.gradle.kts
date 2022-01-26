@@ -6,7 +6,7 @@ import org.jlleitschuh.gradle.ktlint.KtlintExtension
 plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.serialization") version "1.6.10"
-    id("fabric-loom") version "0.10-SNAPSHOT"
+    id("fabric-loom") version "0.11-SNAPSHOT"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     `maven-publish`
 }
@@ -57,7 +57,9 @@ dependencies {
 }
 
 loom {
+    serverOnlyMinecraftJar()
     accessWidenerPath.set(file("src/main/resources/strobo.accesswidener"))
+    runtimeOnlyLog4j.set(true)
     runs {
         create("gameTest") {
             server()

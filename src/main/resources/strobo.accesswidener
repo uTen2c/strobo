@@ -27,3 +27,7 @@ accessible method net/minecraft/server/command/SummonCommand execute (Lnet/minec
 
 # GiveCommand
 accessible method net/minecraft/server/command/GiveCommand execute (Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/command/argument/ItemStackArgument;Ljava/util/Collection;I)I
+
+# ServerCommandSource
+accessible field net/minecraft/server/command/ServerCommandSource output Lnet/minecraft/server/command/CommandOutput;
+accessible field net/minecraft/server/command/ServerCommandSource silent Z
