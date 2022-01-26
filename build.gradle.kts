@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "dev.uten2c"
-version = "53"
+version = "54"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

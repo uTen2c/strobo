@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "Strobo",
   "description": "",
-  "license": "All-Rights-Reserved",
+  "license": "MIT",
   "environment": "server",
   "accessWidener": "strobo.accesswidener",
   "entrypoints": {
