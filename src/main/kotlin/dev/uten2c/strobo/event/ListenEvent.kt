@@ -11,7 +11,10 @@ import kotlin.reflect.KClass
  * @return イベントリスナー
  */
 @Suppress("UNCHECKED_CAST")
-inline fun <reified T : Event> listenEvent(priority: EventPriority = EventPriority.NORMAL, noinline handler: (T) -> Unit): EventListener =
+inline fun <reified T : Event> listenEvent(
+    priority: EventPriority = EventPriority.NORMAL,
+    noinline handler: (T) -> Unit,
+): EventListener =
     internalListenEvent(T::class, handler as (Event) -> Unit, priority)
 
 @ApiStatus.Internal

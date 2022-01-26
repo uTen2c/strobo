@@ -10,4 +10,8 @@ import net.minecraft.server.network.ServerPlayerEntity
  * @param mainHandStack メインハンドに持っている[ItemStack]
  * @param offHandStack オフハンドに持っている[ItemStack]
  */
-class PlayerSwapHandItemsEvent(val player: ServerPlayerEntity, val mainHandStack: ItemStack, val offHandStack: ItemStack) : CancellableEvent()
+class PlayerSwapHandItemsEvent(
+    val player: ServerPlayerEntity,
+    val mainHandStack: ItemStack,
+    val offHandStack: ItemStack,
+) : CancellableEvent()

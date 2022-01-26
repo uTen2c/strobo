@@ -12,4 +12,9 @@ import net.minecraft.entity.damage.DamageSource
  * @param source DamageSource
  * @param attacker 攻撃したエンティティ
  */
-class EntityDamageByEntityEvent(val entity: LivingEntity, var amount: Float, val source: DamageSource, val attacker: Entity) : CancellableEvent()
+class EntityDamageByEntityEvent(
+    val entity: LivingEntity,
+    var amount: Float,
+    val source: DamageSource,
+    val attacker: Entity,
+) : CancellableEvent()

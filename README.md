@@ -31,3 +31,9 @@ dependencies {
     // include("dev.uten2c:strobo:VERSION")
 }
 ```
+
+## Styling
+
+```
+./gradlew ktlintApplyToIdea addKtlintFormatGitPreCommitHook
+```

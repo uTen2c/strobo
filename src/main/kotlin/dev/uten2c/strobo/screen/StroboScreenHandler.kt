@@ -86,17 +86,21 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
     protected fun initPlayerInventorySlots(playerInventory: PlayerInventory, canEdit: Boolean) {
         repeat(3) { y ->
             repeat(9) { x ->
-                addSlot(object : Slot(playerInventory, x + y * 9 + 9) {
-                    override fun canInsert(stack: ItemStack?): Boolean = canEdit
-                    override fun canTakeItems(playerEntity: PlayerEntity?): Boolean = canEdit
-                })
+                addSlot(
+                    object : Slot(playerInventory, x + y * 9 + 9) {
+                        override fun canInsert(stack: ItemStack?): Boolean = canEdit
+                        override fun canTakeItems(playerEntity: PlayerEntity?): Boolean = canEdit
+                    },
+                )
             }
         }
         repeat(9) { x ->
-            addSlot(object : Slot(playerInventory, x) {
-                override fun canInsert(stack: ItemStack?): Boolean = canEdit
-                override fun canTakeItems(playerEntity: PlayerEntity?): Boolean = canEdit
-            })
+            addSlot(
+                object : Slot(playerInventory, x) {
+                    override fun canInsert(stack: ItemStack?): Boolean = canEdit
+                    override fun canTakeItems(playerEntity: PlayerEntity?): Boolean = canEdit
+                },
+            )
         }
     }
 
@@ -104,7 +108,8 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
         val list = if (cursorStack.isEmpty) {
             stacks
         } else {
-            val array = slots.map { if (!it.canInsert(cursorStack) && !it.hasStack()) disabledSlotStack else it.stack }.toTypedArray()
+            val array = slots.map { if (!it.canInsert(cursorStack) && !it.hasStack()) disabledSlotStack else it.stack }
+                .toTypedArray()
             DefaultedList.copyOf(ItemStack.EMPTY, *array)
         }
         val packet = InventoryS2CPacket(syncId, nextRevision(), list, ItemStack.EMPTY)
@@ -125,7 +130,7 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
                 4 to ScreenHandlerType.GENERIC_9X4,
                 5 to ScreenHandlerType.GENERIC_9X5,
                 6 to ScreenHandlerType.GENERIC_9X6,
-            )
+            ),
         )
 
         /**
@@ -138,7 +143,10 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
             customModelData = 1
         }
 
-        private fun getTypeByRows(rows: Int): ScreenHandlerType<*> = typeMap.getOrDefault(rows, ScreenHandlerType.GENERIC_9X1)
+        private fun getTypeByRows(rows: Int): ScreenHandlerType<*> = typeMap.getOrDefault(
+            rows,
+            ScreenHandlerType.GENERIC_9X1,
+        )
 
         private fun getRowsByType(type: ScreenHandlerType<*>): Int = typeMap.inverse().getOrDefault(type, 1)
     }

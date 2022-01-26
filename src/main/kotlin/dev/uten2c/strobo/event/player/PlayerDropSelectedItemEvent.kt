@@ -10,4 +10,8 @@ import net.minecraft.server.network.ServerPlayerEntity
  * @param stack 落とされる予定のアイテム
  * @param entireStack アイテムをすべて落とそうとしたか
  */
-class PlayerDropSelectedItemEvent(val player: ServerPlayerEntity, val stack: ItemStack, val entireStack: Boolean) : CancellableEvent()
+class PlayerDropSelectedItemEvent(
+    val player: ServerPlayerEntity,
+    val stack: ItemStack,
+    val entireStack: Boolean,
+) : CancellableEvent()

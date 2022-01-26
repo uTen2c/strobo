@@ -1,16 +1,56 @@
 package dev.uten2c.strobo.command
 
-import com.mojang.brigadier.arguments.*
+import com.mojang.brigadier.arguments.BoolArgumentType
+import com.mojang.brigadier.arguments.DoubleArgumentType
+import com.mojang.brigadier.arguments.FloatArgumentType
+import com.mojang.brigadier.arguments.IntegerArgumentType
+import com.mojang.brigadier.arguments.LongArgumentType
+import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.minecraft.command.argument.*
+import net.minecraft.command.argument.AngleArgumentType
+import net.minecraft.command.argument.BlockPosArgumentType
+import net.minecraft.command.argument.BlockPredicateArgumentType
+import net.minecraft.command.argument.BlockStateArgumentType
+import net.minecraft.command.argument.ColorArgumentType
+import net.minecraft.command.argument.ColumnPosArgumentType
+import net.minecraft.command.argument.CommandFunctionArgumentType
+import net.minecraft.command.argument.DimensionArgumentType
+import net.minecraft.command.argument.EnchantmentArgumentType
+import net.minecraft.command.argument.EntityAnchorArgumentType
+import net.minecraft.command.argument.EntityArgumentType
+import net.minecraft.command.argument.EntitySummonArgumentType
+import net.minecraft.command.argument.GameProfileArgumentType
+import net.minecraft.command.argument.IdentifierArgumentType
+import net.minecraft.command.argument.ItemPredicateArgumentType
+import net.minecraft.command.argument.ItemSlotArgumentType
+import net.minecraft.command.argument.ItemStackArgumentType
+import net.minecraft.command.argument.MessageArgumentType
+import net.minecraft.command.argument.NbtCompoundArgumentType
+import net.minecraft.command.argument.NbtElementArgumentType
+import net.minecraft.command.argument.NbtPathArgumentType
+import net.minecraft.command.argument.OperationArgumentType
+import net.minecraft.command.argument.ParticleEffectArgumentType
+import net.minecraft.command.argument.RotationArgumentType
+import net.minecraft.command.argument.ScoreHolderArgumentType
+import net.minecraft.command.argument.ScoreboardCriterionArgumentType
+import net.minecraft.command.argument.ScoreboardObjectiveArgumentType
+import net.minecraft.command.argument.ScoreboardSlotArgumentType
+import net.minecraft.command.argument.StatusEffectArgumentType
+import net.minecraft.command.argument.SwizzleArgumentType
+import net.minecraft.command.argument.TeamArgumentType
+import net.minecraft.command.argument.TextArgumentType
+import net.minecraft.command.argument.UuidArgumentType
+import net.minecraft.command.argument.Vec2ArgumentType
+import net.minecraft.command.argument.Vec3ArgumentType
 import net.minecraft.server.command.ServerCommandSource
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument as arg
+import com.mojang.brigadier.context.CommandContext as BrigadierCommandContext
 
 private typealias Child = CommandBuilder.() -> Unit
 
@@ -94,7 +134,10 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     /**
      * サンプル: "foo", "foo.bar.baz", "minecraft:foo"
      */
-    fun scoreboardCriteria(name: String, child: Child) = next(arg(name, ScoreboardCriterionArgumentType.scoreboardCriterion()), child)
+    fun scoreboardCriteria(name: String, child: Child) = next(
+        arg(name, ScoreboardCriterionArgumentType.scoreboardCriterion()),
+        child,
+    )
 
     /**
      * サンプル: "world", "nether"
@@ -104,7 +147,10 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     /**
      * サンプル: "0", "1.2", ".5", "-1", "-.5", "-1234.56"
      */
-    fun double(name: String, min: Double = Double.MIN_VALUE, max: Double = Double.MAX_VALUE, child: Child) = next(arg(name, DoubleArgumentType.doubleArg(min, max)), child)
+    fun double(name: String, min: Double = Double.MIN_VALUE, max: Double = Double.MAX_VALUE, child: Child) = next(
+        arg(name, DoubleArgumentType.doubleArg(min, max)),
+        child,
+    )
 
     /**
      * サンプル: "unbreaking", "silk_touch"
@@ -134,12 +180,18 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     /**
      * サンプル: "0", "1.2", ".5", "-1", "-.5", "-1234.56"
      */
-    fun float(name: String, min: Float = Float.MIN_VALUE, max: Float = Float.MAX_VALUE, child: Child) = next(arg(name, FloatArgumentType.floatArg(min, max)), child)
+    fun float(name: String, min: Float = Float.MIN_VALUE, max: Float = Float.MAX_VALUE, child: Child) = next(
+        arg(name, FloatArgumentType.floatArg(min, max)),
+        child,
+    )
 
     /**
      * サンプル: "foo", "foo:bar", "#foo"
      */
-    fun commandFunction(name: String, child: Child) = next(arg(name, CommandFunctionArgumentType.commandFunction()), child)
+    fun commandFunction(name: String, child: Child) = next(
+        arg(name, CommandFunctionArgumentType.commandFunction()),
+        child,
+    )
 
     /**
      * サンプル: "Player", "0123", "dd12be42-52a9-4a91-a8a1-11c01849e498", "@e"
@@ -159,7 +211,10 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     /**
      * サンプル: "0", "123", "-123"
      */
-    fun integer(name: String, min: Int = Int.MIN_VALUE, max: Int = Int.MAX_VALUE, child: Child) = next(arg(name, IntegerArgumentType.integer(min, max)), child)
+    fun integer(name: String, min: Int = Int.MIN_VALUE, max: Int = Int.MAX_VALUE, child: Child) = next(
+        arg(name, IntegerArgumentType.integer(min, max)),
+        child,
+    )
 
     /**
      * サンプル: "stick", "minecraft:stick", "#stick", "#stick{foo=bar}"
@@ -179,7 +234,10 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     /**
      * サンプル: "0", "123", "-123"
      */
-    fun long(name: String, min: Long = Long.MIN_VALUE, max: Long = Long.MAX_VALUE, child: Child) = next(arg(name, LongArgumentType.longArg(min, max)), child)
+    fun long(name: String, min: Long = Long.MIN_VALUE, max: Long = Long.MAX_VALUE, child: Child) = next(
+        arg(name, LongArgumentType.longArg(min, max)),
+        child,
+    )
 
     /**
      * サンプル: "Hello world!", "foo", "@e", "Hello @p :)"
@@ -199,7 +257,10 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     /**
      * サンプル: "foo", "*", "012"
      */
-    fun scoreboardObjective(name: String, child: Child) = next(arg(name, ScoreboardObjectiveArgumentType.scoreboardObjective()), child)
+    fun scoreboardObjective(name: String, child: Child) = next(
+        arg(name, ScoreboardObjectiveArgumentType.scoreboardObjective()),
+        child,
+    )
 
     /**
      * サンプル: "=", ">", "<"
@@ -279,7 +340,10 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     /**
      * サンプル: "0 0 0", "~ ~ ~", "^ ^ ^", "^1 ^ ^-5", "0.1 -0.5 .9", "~0.5 ~1 ~-5"
      */
-    fun vec3(name: String, centerIntegers: Boolean = true, child: Child) = next(arg(name, Vec3ArgumentType.vec3(centerIntegers)), child)
+    fun vec3(name: String, centerIntegers: Boolean = true, child: Child) = next(
+        arg(name, Vec3ArgumentType.vec3(centerIntegers)),
+        child,
+    )
 
     /**
      * サンプル: "word", "words_with_underscores"
@@ -306,9 +370,14 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun suggests(suggests: (com.mojang.brigadier.context.CommandContext<ServerCommandSource>, SuggestionsBuilder) -> CompletableFuture<Suggestions>) {
+    fun suggests(suggests: (BrigadierCommandContext<ServerCommandSource>, SuggestionsBuilder) -> CompletableFuture<Suggestions>) { // ktlint-disable
         if (builder is RequiredArgumentBuilder<*, *>) {
-            builder.suggests { context, builder -> suggests(context as com.mojang.brigadier.context.CommandContext<ServerCommandSource>, builder) }
+            builder.suggests { context, builder ->
+                suggests(
+                    context as BrigadierCommandContext<ServerCommandSource>,
+                    builder,
+                )
+            }
         }
     }
 

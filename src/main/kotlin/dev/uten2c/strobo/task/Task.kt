@@ -12,7 +12,7 @@ data class TimerTask(
     val period: Long,
     val predicate: Predicate<Long>,
     val consumer: Consumer<Long>,
-    var cancelled: Boolean = false
+    var cancelled: Boolean = false,
 ) {
     private var delayCount = 0L
     private var periodCount = 0L

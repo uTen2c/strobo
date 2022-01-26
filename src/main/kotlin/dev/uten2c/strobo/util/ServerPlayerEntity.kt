@@ -1,11 +1,20 @@
 package dev.uten2c.strobo.util
 
 import dev.uten2c.strobo.task.waitAndRun
-import net.minecraft.network.packet.s2c.play.*
+import net.minecraft.network.packet.s2c.play.ClearTitleS2CPacket
+import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
+import net.minecraft.network.packet.s2c.play.EntityS2CPacket
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket
+import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket
+import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket
+import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket
+import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket
+import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket
+import net.minecraft.network.packet.s2c.play.TitleS2CPacket
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
-import java.util.*
+import java.util.UUID
 
 private val hiddenPlayerMap = HashMap<UUID, HashSet<UUID>>()
 private val states = object : HashMap<ServerPlayerEntity, ListState>() {
@@ -62,7 +71,7 @@ var ServerPlayerEntity.playerListFooter: Text?
 fun ServerPlayerEntity.updatePlayerListHeaderAndFooter() {
     val packet = PlayerListHeaderS2CPacket(
         playerListHeader ?: LiteralText.EMPTY,
-        playerListFooter ?: LiteralText.EMPTY
+        playerListFooter ?: LiteralText.EMPTY,
     )
     networkHandler.sendPacket(packet)
 }
@@ -164,4 +173,5 @@ fun ServerPlayerEntity.hidePlayer(player: ServerPlayerEntity) {
     networkHandler.sendPacket(packet)
 }
 
-fun ServerPlayerEntity.isHidden(player: ServerPlayerEntity): Boolean = hiddenPlayerMap[uuid]?.contains(player.uuid) ?: false
+fun ServerPlayerEntity.isHidden(player: ServerPlayerEntity): Boolean =
+    hiddenPlayerMap[uuid]?.contains(player.uuid) ?: false

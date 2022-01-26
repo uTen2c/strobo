@@ -19,7 +19,7 @@ import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket
 import net.minecraft.test.GameTest
 import net.minecraft.test.TestContext
 import net.minecraft.util.math.BlockPos
-import java.util.*
+import java.util.UUID
 
 class EventTests : StroboGameTest() {
 
@@ -132,7 +132,12 @@ class EventTests : StroboGameTest() {
     @GameTest(structureName = EMPTY_STRUCTURE, tickLimit = 1)
     fun playerAttemptPickupItemEvent(context: TestContext) {
         val mockPlayer = context.createMockServerPlayer()
-        val itemEntity = context.spawnItem(Items.DIAMOND, mockPlayer.pos.x.toFloat(), mockPlayer.pos.y.toFloat(), mockPlayer.pos.z.toFloat())
+        val itemEntity = context.spawnItem(
+            Items.DIAMOND,
+            mockPlayer.pos.x.toFloat(),
+            mockPlayer.pos.y.toFloat(),
+            mockPlayer.pos.z.toFloat(),
+        )
         itemEntity.stack.count = 2
         listenEvent<PlayerAttemptPickupItemEvent> { e ->
             if (e.player == mockPlayer) {

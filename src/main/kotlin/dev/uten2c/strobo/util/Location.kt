@@ -25,7 +25,13 @@ class Location(x: Double, y: Double, z: Double, @JvmField val yaw: Float, @JvmFi
 
     override fun add(vec: Vec3d): Location = add(vec.x, vec.y, vec.z)
 
-    override fun add(x: Double, y: Double, z: Double): Location = Location(this.x + x, this.y + y, this.z + z, yaw, pitch)
+    override fun add(x: Double, y: Double, z: Double): Location = Location(
+        this.x + x,
+        this.y + y,
+        this.z + z,
+        yaw,
+        pitch,
+    )
 
     fun set(x: Double, y: Double, z: Double): Location = Location(x, y, z, yaw, pitch)
 
@@ -35,7 +41,12 @@ class Location(x: Double, y: Double, z: Double, @JvmField val yaw: Float, @JvmFi
 
     override fun equals(other: Any?): Boolean = when {
         this === other -> true
-        other is Location -> this.x == other.x && this.y == other.y && this.z == other.z && this.yaw == other.yaw && this.pitch == other.pitch
+        other is Location ->
+            this.x == other.x &&
+                this.y == other.y &&
+                this.z == other.z &&
+                this.yaw == other.yaw &&
+                this.pitch == other.pitch
         else -> super.equals(other)
     }
 

@@ -10,7 +10,11 @@ import net.minecraft.server.network.ServerPlayerEntity
  * @param entity アイテムエンティティ
  * @param remaining 残りのアイテム数
  */
-class PlayerAttemptPickupItemEvent(val player: ServerPlayerEntity, val entity: ItemEntity, val remaining: Int) : CancellableEvent() {
+class PlayerAttemptPickupItemEvent(
+    val player: ServerPlayerEntity,
+    val entity: ItemEntity,
+    val remaining: Int,
+) : CancellableEvent() {
 
     /**
      * アイテムがプレイヤーに向かって飛ぶかどうか

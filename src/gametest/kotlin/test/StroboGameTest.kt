@@ -9,7 +9,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.test.TestContext
 import net.minecraft.util.math.BlockPos
-import java.util.*
+import java.util.UUID
 
 abstract class StroboGameTest : FabricGameTest {
 

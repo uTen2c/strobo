@@ -10,4 +10,8 @@ import net.minecraft.server.network.ServerPlayerEntity
  * @param currentSpectatorTarget 現在乗り移っているエンティティ
  * @param newSpectatorTarget 乗り移ろうとしているエンティティ
  */
-class PlayerStartSpectatingEntityEvent(val player: ServerPlayerEntity, val currentSpectatorTarget: Entity, val newSpectatorTarget: Entity) : CancellableEvent()
+class PlayerStartSpectatingEntityEvent(
+    val player: ServerPlayerEntity,
+    val currentSpectatorTarget: Entity,
+    val newSpectatorTarget: Entity,
+) : CancellableEvent()

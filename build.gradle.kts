@@ -1,11 +1,13 @@
 import net.fabricmc.loom.task.RemapJarTask
 import net.fabricmc.loom.task.RemapSourcesJarTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.serialization") version "1.6.10"
     id("fabric-loom") version "0.10-SNAPSHOT"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     `maven-publish`
 }
 
@@ -35,6 +37,7 @@ tasks.getByName<ProcessResources>("processResources") {
 
 repositories {
     mavenCentral()
+    maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
 fun DependencyHandlerScope.modIncludeImplementation(dep: Any) {
@@ -71,6 +74,12 @@ loom {
             source(sourceSets.getByName("gametest"))
         }
     }
+}
+
+configure<KtlintExtension> {
+    version.set("0.44.0-SNAPSHOT")
+    additionalEditorconfigFile.set(file(".editorconfig"))
+    enableExperimentalRules.set(true)
 }
 
 tasks.withType<JavaCompile> {
