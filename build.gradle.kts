@@ -106,7 +106,7 @@ publishing {
     }
     repositories {
         maven {
-            url = uri("${System.getProperty("user.home")}/private-repo")
+            url = uri("${System.getProperty("user.home")}/repo")
         }
     }
 }
