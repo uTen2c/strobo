@@ -10,8 +10,8 @@ internal object StroboGiveCommand {
     fun register() {
         registerCommand("give") {
             requires(2)
-            players("targets") {
-                itemStack("item") {
+            players { getTargets ->
+                itemStack { getItem ->
                     suggests { _, builder ->
                         val str = builder.input.substring(builder.start)
                         Registry.ITEM
@@ -26,17 +26,12 @@ internal object StroboGiveCommand {
                         return@suggests builder.buildFuture()
                     }
                     executes {
-                        GiveCommand.execute(source, getItemStack("item"), getPlayers("targets"), 1)
+                        GiveCommand.execute(source, getItem(), getTargets(), 1)
                     }
 
-                    integer("count", 1) {
+                    integer(1) { getCount ->
                         executes {
-                            GiveCommand.execute(
-                                source,
-                                getItemStack("item"),
-                                getPlayers("targets"),
-                                getInteger("count"),
-                            )
+                            GiveCommand.execute(source, getItem(), getTargets(), getCount())
                         }
                     }
                 }

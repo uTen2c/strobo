@@ -14,7 +14,7 @@ internal object StroboSummonCommand {
     fun register() {
         registerCommand("summon") {
             requires(2)
-            identifier("entity") {
+            identifier { getEntity ->
                 suggests { _, builder ->
                     val str = builder.input.substring(builder.start)
                     Registry.ENTITY_TYPE
@@ -32,20 +32,17 @@ internal object StroboSummonCommand {
                     return@suggests builder.buildFuture()
                 }
                 executes {
-                    SummonCommand.execute(source, getIdentifier("entity"), source.position, NbtCompound(), true)
+                    SummonCommand.execute(source, getEntity(), source.position, NbtCompound(), true)
                 }
 
-                vec3("pos", true) {
+                vec3(true) { getPos ->
                     executes {
-                        SummonCommand.execute(source, getIdentifier("entity"), getVec3("pos"), NbtCompound(), true)
+                        SummonCommand.execute(source, getEntity(), getPos(), NbtCompound(), true)
                     }
 
-                    nbtCompound("nbt") {
+                    nbtCompound { getNbt ->
                         executes {
-                            val entity = getIdentifier("entity")
-                            val pos = getVec3("pos")
-                            val nbt = getNbtCompound("nbt")
-                            SummonCommand.execute(source, entity, pos, nbt, false)
+                            SummonCommand.execute(source, getEntity(), getPos(), getNbt(), false)
                         }
                     }
                 }

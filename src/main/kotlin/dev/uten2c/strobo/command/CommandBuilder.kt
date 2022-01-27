@@ -1,5 +1,7 @@
 package dev.uten2c.strobo.command
 
+import com.mojang.authlib.GameProfile
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.BoolArgumentType
 import com.mojang.brigadier.arguments.DoubleArgumentType
 import com.mojang.brigadier.arguments.FloatArgumentType
@@ -11,9 +13,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import com.mojang.datafixers.util.Either
+import com.mojang.datafixers.util.Pair
+import dev.uten2c.strobo.command.argument.ArgumentGetter
+import dev.uten2c.strobo.command.argument.ScoreHoldersArgument
+import net.minecraft.block.pattern.CachedBlockPosition
 import net.minecraft.command.argument.AngleArgumentType
 import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.command.argument.BlockPredicateArgumentType
+import net.minecraft.command.argument.BlockStateArgument
 import net.minecraft.command.argument.BlockStateArgumentType
 import net.minecraft.command.argument.ColorArgumentType
 import net.minecraft.command.argument.ColumnPosArgumentType
@@ -27,6 +35,7 @@ import net.minecraft.command.argument.GameProfileArgumentType
 import net.minecraft.command.argument.IdentifierArgumentType
 import net.minecraft.command.argument.ItemPredicateArgumentType
 import net.minecraft.command.argument.ItemSlotArgumentType
+import net.minecraft.command.argument.ItemStackArgument
 import net.minecraft.command.argument.ItemStackArgumentType
 import net.minecraft.command.argument.MessageArgumentType
 import net.minecraft.command.argument.NbtCompoundArgumentType
@@ -34,6 +43,7 @@ import net.minecraft.command.argument.NbtElementArgumentType
 import net.minecraft.command.argument.NbtPathArgumentType
 import net.minecraft.command.argument.OperationArgumentType
 import net.minecraft.command.argument.ParticleEffectArgumentType
+import net.minecraft.command.argument.PosArgument
 import net.minecraft.command.argument.RotationArgumentType
 import net.minecraft.command.argument.ScoreHolderArgumentType
 import net.minecraft.command.argument.ScoreboardCriterionArgumentType
@@ -46,13 +56,37 @@ import net.minecraft.command.argument.TextArgumentType
 import net.minecraft.command.argument.UuidArgumentType
 import net.minecraft.command.argument.Vec2ArgumentType
 import net.minecraft.command.argument.Vec3ArgumentType
+import net.minecraft.enchantment.Enchantment
+import net.minecraft.entity.Entity
+import net.minecraft.entity.effect.StatusEffect
+import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.NbtElement
+import net.minecraft.particle.ParticleEffect
+import net.minecraft.scoreboard.ScoreboardCriterion
+import net.minecraft.scoreboard.ScoreboardObjective
+import net.minecraft.scoreboard.Team
 import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.server.function.CommandFunction
+import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.server.world.ServerWorld
+import net.minecraft.tag.Tag
+import net.minecraft.text.Text
+import net.minecraft.util.Formatting
+import net.minecraft.util.Identifier
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.ColumnPos
+import net.minecraft.util.math.Direction
+import net.minecraft.util.math.Vec2f
+import net.minecraft.util.math.Vec3d
+import java.util.EnumSet
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import java.util.function.Predicate
+import java.util.function.Supplier
 import kotlin.reflect.KClass
-import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument as arg
+import kotlin.reflect.jvm.reflect
 import com.mojang.brigadier.context.CommandContext as BrigadierCommandContext
-
-private typealias Child = CommandBuilder.() -> Unit
 
 @Suppress("unused")
 class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *>) {
@@ -89,266 +123,338 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     /**
      * 任意の文字列
      */
-    fun literal(literal: String, child: Child) = next(literal(literal), child)
+    fun literal(literal: String, child: CommandBuilder.() -> Unit) {
+        val arg = literal<ServerCommandSource>(literal)
+        child(CommandBuilder(arg))
+        builder.then(arg)
+    }
 
     /**
      * サンプル: "0", "~", "~-5"
      */
-    fun angle(name: String, child: Child) = next(arg(name, AngleArgumentType.angle()), child)
+    fun angle(child: CommandBuilder.(angle: ArgumentGetter<Float>) -> Unit) =
+        next(child, AngleArgumentType::angle, AngleArgumentType::getAngle)
 
     /**
      * サンプル: "0 0 0", "~ ~ ~", "^ ^ ^", "^1 ^ ^-5", "~0.5 ~1 ~-5"
      */
-    fun blockPos(name: String, child: Child) = next(arg(name, BlockPosArgumentType.blockPos()), child)
+    fun blockPos(child: CommandBuilder.(blockPos: ArgumentGetter<BlockPos>) -> Unit) =
+        next(child, BlockPosArgumentType::blockPos, BlockPosArgumentType::getBlockPos)
 
     /**
      * サンプル: "stone", "minecraft:stone", "stone[foo=bar]", "#stone", "#stone[foo=bar]{baz=nbt}"
      */
-    fun blockPredicate(name: String, child: Child) = next(arg(name, BlockPredicateArgumentType.blockPredicate()), child)
+    fun blockPredicate(child: CommandBuilder.(blockPredicate: ArgumentGetter<Predicate<CachedBlockPosition>>) -> Unit) =
+        next(child, BlockPredicateArgumentType::blockPredicate, BlockPredicateArgumentType::getBlockPredicate)
 
     /**
      * サンプル: "stone", "minecraft:stone", "stone[foo=bar]", "foo{bar=baz}"
      */
-    fun blockStateArg(name: String, child: Child) = next(arg(name, BlockStateArgumentType.blockState()), child)
+    fun blockStateArg(child: CommandBuilder.(blockState: ArgumentGetter<BlockStateArgument>) -> Unit) =
+        next(child, BlockStateArgumentType::blockState, BlockStateArgumentType::getBlockState)
 
     /**
      * サンプル: "true", "false"
      */
-    fun boolean(name: String, child: Child) = next(arg(name, BoolArgumentType.bool()), child)
+    fun boolean(child: CommandBuilder.(flag: ArgumentGetter<Boolean>) -> Unit) =
+        next(child, BoolArgumentType::bool, BoolArgumentType::getBool)
 
     /**
      * サンプル: "red", "green"
      */
-    fun color(name: String, child: Child) = next(arg(name, ColorArgumentType.color()), child)
+    fun color(child: CommandBuilder.(color: ArgumentGetter<Formatting>) -> Unit) =
+        next(child, ColorArgumentType::color, ColorArgumentType::getColor)
 
     /**
      * サンプル: "0 0", "~ ~", "~1 ~-2", "^ ^", "^-1 ^0"
      */
-    fun columnPos(name: String, child: Child) = next(arg(name, ColumnPosArgumentType.columnPos()), child)
+    fun columnPos(child: CommandBuilder.(columnPos: ArgumentGetter<ColumnPos>) -> Unit) =
+        next(child, ColumnPosArgumentType::columnPos, ColumnPosArgumentType::getColumnPos)
 
     /**
      * サンプル: "{}", "{foo=bar}"
      */
-    fun nbtCompound(name: String, child: Child) = next(arg(name, NbtCompoundArgumentType.nbtCompound()), child)
+    fun nbtCompound(child: CommandBuilder.(nbtCompound: ArgumentGetter<NbtCompound>) -> Unit) =
+        next(child, NbtCompoundArgumentType::nbtCompound, NbtCompoundArgumentType::getNbtCompound)
 
     /**
      * サンプル: "foo", "foo.bar.baz", "minecraft:foo"
      */
-    fun scoreboardCriteria(name: String, child: Child) = next(
-        arg(name, ScoreboardCriterionArgumentType.scoreboardCriterion()),
-        child,
-    )
+    fun scoreboardCriteria(child: CommandBuilder.(scoreboardCriteria: ArgumentGetter<ScoreboardCriterion>) -> Unit) =
+        next(child, ScoreboardCriterionArgumentType::scoreboardCriterion, ScoreboardCriterionArgumentType::getCriterion)
 
     /**
      * サンプル: "world", "nether"
      */
-    fun dimension(name: String, child: Child) = next(arg(name, DimensionArgumentType.dimension()), child)
+    fun dimension(child: CommandBuilder.(world: ArgumentGetter<ServerWorld>) -> Unit) =
+        next(child, DimensionArgumentType::dimension, DimensionArgumentType::getDimensionArgument)
 
     /**
      * サンプル: "0", "1.2", ".5", "-1", "-.5", "-1234.56"
      */
-    fun double(name: String, min: Double = Double.MIN_VALUE, max: Double = Double.MAX_VALUE, child: Child) = next(
-        arg(name, DoubleArgumentType.doubleArg(min, max)),
-        child,
-    )
+    fun double(
+        min: Double = Double.MIN_VALUE,
+        max: Double = Double.MAX_VALUE,
+        child: CommandBuilder.(double: ArgumentGetter<Double>) -> Unit,
+    ) = next(child, { DoubleArgumentType.doubleArg(min, max) }, DoubleArgumentType::getDouble)
 
     /**
      * サンプル: "unbreaking", "silk_touch"
      */
-    fun enchantment(name: String, child: Child) = next(arg(name, EnchantmentArgumentType.enchantment()), child)
+    fun enchantment(child: CommandBuilder.(enchantment: ArgumentGetter<Enchantment>) -> Unit) =
+        next(child, EnchantmentArgumentType::enchantment, EnchantmentArgumentType::getEnchantment)
 
     /**
      * サンプル: "Player", "0123", "@e", "@e[type=foo]", "dd12be42-52a9-4a91-a8a1-11c01849e498"
      */
-    fun entities(name: String, child: Child) = next(arg(name, EntityArgumentType.entities()), child)
+    fun entities(child: CommandBuilder.(entities: ArgumentGetter<Collection<Entity>>) -> Unit) =
+        next(child, EntityArgumentType::entities, EntityArgumentType::getEntities)
 
     /**
      * サンプル: "Player", "0123", "@e", "@e[type=foo]", "dd12be42-52a9-4a91-a8a1-11c01849e498"
      */
-    fun entity(name: String, child: Child) = next(arg(name, EntityArgumentType.entity()), child)
+    fun entity(child: CommandBuilder.(entity: ArgumentGetter<Entity>) -> Unit) =
+        next(child, EntityArgumentType::entity, EntityArgumentType::getEntity)
 
     /**
      * サンプル: "eyes", "feet"
      */
-    fun entityAnchor(name: String, child: Child) = next(arg(name, EntityAnchorArgumentType.entityAnchor()), child)
+    fun entityAnchor(
+        child: CommandBuilder.(entityAnchor: ArgumentGetter<EntityAnchorArgumentType.EntityAnchor>) -> Unit,
+    ) = next(child, EntityAnchorArgumentType::entityAnchor, EntityAnchorArgumentType::getEntityAnchor)
 
     /**
      * サンプル: "minecraft:pig", "cow"
      */
-    fun entitySummon(name: String, child: Child) = next(arg(name, EntitySummonArgumentType.entitySummon()), child)
+    fun entitySummon(child: CommandBuilder.(entityId: ArgumentGetter<Identifier>) -> Unit) =
+        next(child, EntitySummonArgumentType::entitySummon, EntitySummonArgumentType::getEntitySummon)
 
     /**
      * サンプル: "0", "1.2", ".5", "-1", "-.5", "-1234.56"
      */
-    fun float(name: String, min: Float = Float.MIN_VALUE, max: Float = Float.MAX_VALUE, child: Child) = next(
-        arg(name, FloatArgumentType.floatArg(min, max)),
-        child,
-    )
+    fun float(
+        min: Float = Float.MIN_VALUE,
+        max: Float = Float.MAX_VALUE,
+        child: CommandBuilder.(float: ArgumentGetter<Float>) -> Unit,
+    ) = next(child, { FloatArgumentType.floatArg(min, max) }, FloatArgumentType::getFloat)
 
     /**
      * サンプル: "foo", "foo:bar", "#foo"
      */
-    fun commandFunction(name: String, child: Child) = next(
-        arg(name, CommandFunctionArgumentType.commandFunction()),
-        child,
-    )
+    fun functionOrTag(
+        child: CommandBuilder.(
+            pair: ArgumentGetter<Pair<Identifier, Either<CommandFunction, Tag<CommandFunction>>>>,
+        ) -> Unit,
+    ) = next(child, CommandFunctionArgumentType::commandFunction, CommandFunctionArgumentType::getFunctionOrTag)
+
+    /**
+     * サンプル: "foo", "foo:bar", "#foo"
+     */
+    fun functions(child: CommandBuilder.(functions: ArgumentGetter<Collection<CommandFunction>>) -> Unit) =
+        next(child, CommandFunctionArgumentType::commandFunction, CommandFunctionArgumentType::getFunctions)
 
     /**
      * サンプル: "Player", "0123", "dd12be42-52a9-4a91-a8a1-11c01849e498", "@e"
      */
-    fun gameProfile(name: String, child: Child) = next(arg(name, GameProfileArgumentType.gameProfile()), child)
+    fun gameProfile(child: CommandBuilder.(gameProfile: ArgumentGetter<Collection<GameProfile>>) -> Unit) =
+        next(child, GameProfileArgumentType::gameProfile, GameProfileArgumentType::getProfileArgument)
 
     /**
      * サンプル: "word", "words with spaces", "\"and symbols\""
      */
-    fun greedyString(name: String, child: Child) = next(arg(name, StringArgumentType.greedyString()), child)
+    fun greedyString(child: CommandBuilder.(greedyString: ArgumentGetter<String>) -> Unit) =
+        next(child, StringArgumentType::greedyString, StringArgumentType::getString)
 
     /**
      * サンプル: "foo", "foo:bar", "012"
      */
-    fun identifier(name: String, child: Child) = next(arg(name, IdentifierArgumentType.identifier()), child)
+    fun identifier(child: CommandBuilder.(identifier: ArgumentGetter<Identifier>) -> Unit) =
+        next(child, IdentifierArgumentType::identifier, IdentifierArgumentType::getIdentifier)
 
     /**
      * サンプル: "0", "123", "-123"
      */
-    fun integer(name: String, min: Int = Int.MIN_VALUE, max: Int = Int.MAX_VALUE, child: Child) = next(
-        arg(name, IntegerArgumentType.integer(min, max)),
-        child,
-    )
+    fun integer(
+        min: Int = Int.MIN_VALUE,
+        max: Int = Int.MAX_VALUE,
+        child: CommandBuilder.(integer: ArgumentGetter<Int>) -> Unit,
+    ) = next(child, { IntegerArgumentType.integer(min, max) }, IntegerArgumentType::getInteger)
 
     /**
      * サンプル: "stick", "minecraft:stick", "#stick", "#stick{foo=bar}"
      */
-    fun itemPredicate(name: String, child: Child) = next(arg(name, ItemPredicateArgumentType.itemPredicate()), child)
+    fun itemPredicate(child: CommandBuilder.(itemPredicate: ArgumentGetter<Predicate<ItemStack>>) -> Unit) =
+        next(child, ItemPredicateArgumentType::itemPredicate, ItemPredicateArgumentType::getItemPredicate)
 
     /**
      * サンプル: "container.5", "12", "weapon"
      */
-    fun itemSlot(name: String, child: Child) = next(arg(name, ItemSlotArgumentType.itemSlot()), child)
+    fun itemSlot(child: CommandBuilder.(itemSlot: ArgumentGetter<Int>) -> Unit) =
+        next(child, ItemSlotArgumentType::itemSlot, ItemSlotArgumentType::getItemSlot)
 
     /**
      * サンプル: "stick", "minecraft:stick", "stick{foo=bar}"
      */
-    fun itemStack(name: String, child: Child) = next(arg(name, ItemStackArgumentType.itemStack()), child)
+    fun itemStack(child: CommandBuilder.(itemStack: ArgumentGetter<ItemStackArgument>) -> Unit) =
+        next(child, ItemStackArgumentType::itemStack, ItemStackArgumentType::getItemStackArgument)
 
     /**
      * サンプル: "0", "123", "-123"
      */
-    fun long(name: String, min: Long = Long.MIN_VALUE, max: Long = Long.MAX_VALUE, child: Child) = next(
-        arg(name, LongArgumentType.longArg(min, max)),
-        child,
-    )
+    fun long(
+        min: Long = Long.MIN_VALUE,
+        max: Long = Long.MAX_VALUE,
+        child: CommandBuilder.(long: ArgumentGetter<Long>) -> Unit,
+    ) = next(child, { LongArgumentType.longArg(min, max) }, LongArgumentType::getLong)
 
     /**
      * サンプル: "Hello world!", "foo", "@e", "Hello @p :)"
      */
-    fun message(name: String, child: Child) = next(arg(name, MessageArgumentType.message()), child)
+    fun message(child: CommandBuilder.(message: ArgumentGetter<Text>) -> Unit) =
+        next(child, MessageArgumentType::message, MessageArgumentType::getMessage)
 
     /**
      * サンプル: "spooky", "effect"
      */
-    fun statusEffect(name: String, child: Child) = next(arg(name, StatusEffectArgumentType.statusEffect()), child)
+    fun statusEffect(child: CommandBuilder.(statusEffect: ArgumentGetter<StatusEffect>) -> Unit) =
+        next(child, StatusEffectArgumentType::statusEffect, StatusEffectArgumentType::getStatusEffect)
 
     /**
      * サンプル: "foo", "foo.bar", "foo[0]", "[0]", "[]", "{foo=bar}"
      */
-    fun nbtPath(name: String, child: Child) = next(arg(name, NbtPathArgumentType.nbtPath()), child)
+    fun nbtPath(child: CommandBuilder.(nbtPath: ArgumentGetter<NbtPathArgumentType.NbtPath>) -> Unit) =
+        next(child, NbtPathArgumentType::nbtPath, NbtPathArgumentType::getNbtPath)
 
     /**
      * サンプル: "foo", "*", "012"
      */
-    fun scoreboardObjective(name: String, child: Child) = next(
-        arg(name, ScoreboardObjectiveArgumentType.scoreboardObjective()),
+    fun scoreboardObjective(child: CommandBuilder.(scoreboardObjective: ArgumentGetter<ScoreboardObjective>) -> Unit) =
+        next(child, ScoreboardObjectiveArgumentType::scoreboardObjective, ScoreboardObjectiveArgumentType::getObjective)
+
+    /**
+     * サンプル: "foo", "*", "012"
+     */
+    fun scoreboardWritableObjective(
+        child: CommandBuilder.(scoreboardWritableObjective: ArgumentGetter<ScoreboardObjective>) -> Unit,
+    ) = next(
         child,
+        ScoreboardObjectiveArgumentType::scoreboardObjective,
+        ScoreboardObjectiveArgumentType::getWritableObjective,
     )
 
     /**
      * サンプル: "=", ">", "<"
      */
-    fun operation(name: String, child: Child) = next(arg(name, OperationArgumentType.operation()), child)
+    fun operation(child: CommandBuilder.(operation: ArgumentGetter<OperationArgumentType.Operation>) -> Unit) =
+        next(child, OperationArgumentType::operation, OperationArgumentType::getOperation)
 
     /**
      * サンプル: "foo", "foo:bar", "particle with options"
      */
-    fun particleEffect(name: String, child: Child) = next(arg(name, ParticleEffectArgumentType.particleEffect()), child)
+    fun particleEffect(child: CommandBuilder.(particleEffect: ArgumentGetter<ParticleEffect>) -> Unit) =
+        next(child, ParticleEffectArgumentType::particleEffect, ParticleEffectArgumentType::getParticle)
 
     /**
      * サンプル: "Player", "0123", "@e", "@e[type=foo]", "dd12be42-52a9-4a91-a8a1-11c01849e498"
      */
-    fun player(name: String, child: Child) = next(arg(name, EntityArgumentType.player()), child)
+    fun player(child: CommandBuilder.(player: ArgumentGetter<ServerPlayerEntity>) -> Unit) =
+        next(child, EntityArgumentType::player, EntityArgumentType::getPlayer)
 
     /**
      * サンプル: "Player", "0123", "@e", "@e[type=foo]", "dd12be42-52a9-4a91-a8a1-11c01849e498"
      */
-    fun players(name: String, child: Child) = next(arg(name, EntityArgumentType.players()), child)
+    fun players(child: CommandBuilder.(players: ArgumentGetter<Collection<ServerPlayerEntity>>) -> Unit) =
+        next(child, EntityArgumentType::players, EntityArgumentType::getPlayers)
+
+    /**
+     * サンプル: "Player", "0123", "@e", "@e[type=foo]", "dd12be42-52a9-4a91-a8a1-11c01849e498"
+     */
+    fun optionalPlayers(child: CommandBuilder.(players: ArgumentGetter<Collection<ServerPlayerEntity>>) -> Unit) =
+        next(child, EntityArgumentType::players, EntityArgumentType::getOptionalPlayers)
 
     /**
      * サンプル: "0 0", "~ ~", "~-5 ~5"
      */
-    fun rotation(name: String, child: Child) = next(arg(name, RotationArgumentType.rotation()), child)
+    fun rotation(child: CommandBuilder.(rotation: ArgumentGetter<PosArgument>) -> Unit) =
+        next(child, RotationArgumentType::rotation, RotationArgumentType::getRotation)
 
     /**
      * サンプル: "Player", "0123", "*", "@e"
      */
-    fun scoreHolder(name: String, child: Child) = next(arg(name, ScoreHolderArgumentType.scoreHolder()), child)
+    fun scoreHolder(child: CommandBuilder.(scoreHolder: ArgumentGetter<String>) -> Unit) =
+        next(child, ScoreHolderArgumentType::scoreHolder, ScoreHolderArgumentType::getScoreHolder)
 
     /**
      * サンプル: "Player", "0123", "*", "@e"
      */
-    fun scoreHolders(name: String, child: Child) = next(arg(name, ScoreHolderArgumentType.scoreHolders()), child)
+    fun scoreHolders(child: CommandBuilder.(scoreHolders: ScoreHoldersArgument) -> Unit) =
+        nextScoreHolders(child, ScoreHolderArgumentType::scoreHolder, ScoreHolderArgumentType::getScoreHolders)
+
+    /**
+     * サンプル: "Player", "0123", "*", "@e"
+     */
+    fun scoreboardScoreHolders(child: CommandBuilder.(scoreHolders: ArgumentGetter<Collection<String>>) -> Unit) =
+        next(child, ScoreHolderArgumentType::scoreHolder, ScoreHolderArgumentType::getScoreboardScoreHolders)
 
     /**
      * サンプル: "sidebar", "foo.bar"
      */
-    fun scoreboardSlot(name: String, child: Child) = next(arg(name, ScoreboardSlotArgumentType.scoreboardSlot()), child)
+    fun scoreboardSlot(child: CommandBuilder.(scoreboardSlot: ArgumentGetter<Int>) -> Unit) =
+        next(child, ScoreboardSlotArgumentType::scoreboardSlot, ScoreboardSlotArgumentType::getScoreboardSlot)
 
     /**
      * サンプル: "\"quoted phrase\"", "word", "\"\""
      */
-    fun string(name: String, child: Child) = next(arg(name, StringArgumentType.string()), child)
+    fun string(child: CommandBuilder.(getString: ArgumentGetter<String>) -> Unit) =
+        next(child, StringArgumentType::string, StringArgumentType::getString)
 
     /**
      * サンプル: "xyz", "x"
      */
-    fun swizzle(name: String, child: Child) = next(arg(name, SwizzleArgumentType.swizzle()), child)
+    fun swizzle(child: CommandBuilder.(getSwizzle: ArgumentGetter<EnumSet<Direction.Axis>>) -> Unit) =
+        next(child, SwizzleArgumentType::swizzle, SwizzleArgumentType::getSwizzle)
 
     /**
      * サンプル: "0", "0b", "0l", "0.0", "\"foo\"", "{foo=bar}", "[0]"
      */
-    fun nbtElement(name: String, child: Child) = next(arg(name, NbtElementArgumentType.nbtElement()), child)
+    fun nbtElement(child: CommandBuilder.(getNbtElement: ArgumentGetter<NbtElement>) -> Unit) =
+        next(child, NbtElementArgumentType::nbtElement, NbtElementArgumentType::getNbtElement)
 
     /**
      * サンプル: "foo", "123"
      */
-    fun team(name: String, child: Child) = next(arg(name, TeamArgumentType.team()), child)
+    fun team(child: CommandBuilder.(getTeam: ArgumentGetter<Team>) -> Unit) =
+        next(child, TeamArgumentType::team, TeamArgumentType::getTeam)
 
     /**
      * サンプル: "\"hello world\"", "\"\"", "\"{\"text\":\"hello world\"}", "[\"\"]"
      */
-    fun text(name: String, child: Child) = next(arg(name, TextArgumentType.text()), child)
+    fun text(child: CommandBuilder.(getText: ArgumentGetter<Text>) -> Unit) =
+        next(child, TextArgumentType::text, TextArgumentType::getTextArgument)
 
     /**
      * サンプル: "dd12be42-52a9-4a91-a8a1-11c01849e498"
      */
-    fun uuid(name: String, child: Child) = next(arg(name, UuidArgumentType.uuid()), child)
+    fun uuid(child: CommandBuilder.(getUUID: ArgumentGetter<UUID>) -> Unit) =
+        next(child, UuidArgumentType::uuid, UuidArgumentType::getUuid)
 
     /**
      * サンプル: "0 0", "~ ~", "0.1 -0.5", "~1 ~-2"
      */
-    fun vec2(name: String, child: Child) = next(arg(name, Vec2ArgumentType.vec2()), child)
+    fun vec2(child: CommandBuilder.(getVec2: ArgumentGetter<Vec2f>) -> Unit) =
+        next(child, Vec2ArgumentType::vec2, Vec2ArgumentType::getVec2)
 
     /**
      * サンプル: "0 0 0", "~ ~ ~", "^ ^ ^", "^1 ^ ^-5", "0.1 -0.5 .9", "~0.5 ~1 ~-5"
      */
-    fun vec3(name: String, centerIntegers: Boolean = true, child: Child) = next(
-        arg(name, Vec3ArgumentType.vec3(centerIntegers)),
-        child,
-    )
+    fun vec3(centerIntegers: Boolean = true, child: CommandBuilder.(getVec3: ArgumentGetter<Vec3d>) -> Unit) =
+        next(child, { Vec3ArgumentType.vec3(centerIntegers) }, Vec3ArgumentType::getVec3)
 
     /**
      * サンプル: "word", "words_with_underscores"
      */
-    fun word(name: String, child: Child) = next(arg(name, StringArgumentType.word()), child)
+    fun word(child: CommandBuilder.(getWord: ArgumentGetter<String>) -> Unit) =
+        next(child, StringArgumentType::word, StringArgumentType::getString)
 
     /**
      * 任意のEnum
@@ -370,7 +476,9 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun suggests(suggests: (BrigadierCommandContext<ServerCommandSource>, SuggestionsBuilder) -> CompletableFuture<Suggestions>) { // ktlint-disable
+    fun suggests(
+        suggests: (BrigadierCommandContext<ServerCommandSource>, SuggestionsBuilder) -> CompletableFuture<Suggestions>,
+    ) {
         if (builder is RequiredArgumentBuilder<*, *>) {
             builder.suggests { context, builder ->
                 suggests(
@@ -381,8 +489,41 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
         }
     }
 
-    private fun next(arg: ArgumentBuilder<ServerCommandSource, *>, child: Child) {
-        child(CommandBuilder(arg))
+    @Suppress("EXPERIMENTAL_API_USAGE")
+    private fun <T1, T2> next(
+        child: CommandBuilder.(ArgumentGetter<T1>) -> Unit,
+        argumentProvider: () -> ArgumentType<T2>,
+        factory: (com.mojang.brigadier.context.CommandContext<ServerCommandSource>, String) -> T1,
+    ) {
+        val name = getterNameToParamName(child.reflect()?.parameters?.get(1)?.name.toString())
+        val arg = RequiredArgumentBuilder.argument<ServerCommandSource, T2>(name, argumentProvider())
+        child(CommandBuilder(arg), ArgumentGetter { factory(it, name) })
         builder.then(arg)
+    }
+
+    @Suppress("EXPERIMENTAL_API_USAGE")
+    private fun <T> nextScoreHolders(
+        child: CommandBuilder.(ScoreHoldersArgument) -> Unit,
+        argumentProvider: () -> ArgumentType<T>,
+        factory: (
+            com.mojang.brigadier.context.CommandContext<ServerCommandSource>,
+            String,
+            Supplier<Collection<String>>,
+        ) -> Collection<String>,
+    ) {
+        val getterName = child.reflect()?.parameters?.get(1)?.name.toString()
+        val name = getterNameToParamName(getterName)
+        val arg = RequiredArgumentBuilder.argument<ServerCommandSource, T>(name, argumentProvider())
+        child(CommandBuilder(arg), ScoreHoldersArgument { ctx, supplier -> factory(ctx, name, supplier) })
+        builder.then(arg)
+    }
+
+    private fun getterNameToParamName(getterName: String): String {
+        val name = StringBuilder(getterName)
+        if (name.startsWith("get") && 3 < name.length) {
+            name.delete(0, 3)
+            name[0] = name[0].lowercaseChar()
+        }
+        return name.toString()
     }
 }
