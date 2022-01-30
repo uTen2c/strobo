@@ -28,6 +28,10 @@ data class TimerTask(
         }
         return false
     }
+
+    fun cancel() {
+        cancelled = true
+    }
 }
 
 /**
