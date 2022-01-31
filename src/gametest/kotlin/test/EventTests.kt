@@ -1,7 +1,6 @@
 package test
 
 import dev.uten2c.strobo.event.block.BlockBreakEvent
-import dev.uten2c.strobo.event.entity.EntityDamageByEntityEvent
 import dev.uten2c.strobo.event.entity.EntityDamageEvent
 import dev.uten2c.strobo.event.entity.EntityDeathEvent
 import dev.uten2c.strobo.event.listenEvent
@@ -45,42 +44,6 @@ class EventTests : StroboGameTest() {
         context.addInstantFinalTask {
             context.checkBlock(pos, { block -> block == Blocks.GOLD_BLOCK }, "金ブロックを期待してる")
         }
-    }
-
-    @GameTest(structureName = EMPTY_STRUCTURE, tickLimit = 1)
-    fun entityDamageByEntityEventTest(context: TestContext) {
-        val mockPlayer = context.createMockPlayer()
-        val entity = context.spawnEntity(EntityType.PIG, BlockPos(0, 1, 0))
-
-        listenEvent<EntityDamageByEntityEvent> { e ->
-            if (e.entity.uuid == entity.uuid) {
-                e.eventListener.unlisten()
-                if (e.attacker.uuid != mockPlayer.uuid) {
-                    context.wrappedFail("攻撃したエンティティが異なる", entity)
-                    entity.discard()
-                    return@listenEvent
-                }
-                if (e.source.attacker != mockPlayer) {
-                    context.wrappedFail("ダメージソースが異なる", entity)
-                    entity.discard()
-                    return@listenEvent
-                }
-                e.isCancelled = true
-                e.entity.health = 1f
-
-                context.addInstantFinalTask {
-                    val health = entity.health
-                    entity.discard()
-                    if (health == 1f) {
-                        context.complete()
-                    } else {
-                        context.throwGameTestException("イベントが正常に処理されていない")
-                    }
-                }
-            }
-        }
-
-        mockPlayer.attack(entity)
     }
 
     @GameTest(structureName = EMPTY_STRUCTURE, tickLimit = 1)
