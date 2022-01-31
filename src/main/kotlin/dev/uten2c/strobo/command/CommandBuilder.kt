@@ -193,8 +193,8 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      * サンプル: "0", "1.2", ".5", "-1", "-.5", "-1234.56"
      */
     fun double(
-        min: Double = Double.MIN_VALUE,
-        max: Double = Double.MAX_VALUE,
+        min: Double = -1.7976931348623157E308,
+        max: Double = 1.7976931348623157E308,
         child: CommandBuilder.(double: ArgumentGetter<Double>) -> Unit,
     ) = next(child, { DoubleArgumentType.doubleArg(min, max) }, DoubleArgumentType::getDouble)
 
@@ -233,8 +233,8 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      * サンプル: "0", "1.2", ".5", "-1", "-.5", "-1234.56"
      */
     fun float(
-        min: Float = Float.MIN_VALUE,
-        max: Float = Float.MAX_VALUE,
+        min: Float = -3.4028235E38f,
+        max: Float = 3.4028235E38f,
         child: CommandBuilder.(float: ArgumentGetter<Float>) -> Unit,
     ) = next(child, { FloatArgumentType.floatArg(min, max) }, FloatArgumentType::getFloat)
 
@@ -275,8 +275,8 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      * サンプル: "0", "123", "-123"
      */
     fun integer(
-        min: Int = Int.MIN_VALUE,
-        max: Int = Int.MAX_VALUE,
+        min: Int = -2147483648,
+        max: Int = 2147483647,
         child: CommandBuilder.(integer: ArgumentGetter<Int>) -> Unit,
     ) = next(child, { IntegerArgumentType.integer(min, max) }, IntegerArgumentType::getInteger)
 
@@ -302,8 +302,8 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      * サンプル: "0", "123", "-123"
      */
     fun long(
-        min: Long = Long.MIN_VALUE,
-        max: Long = Long.MAX_VALUE,
+        min: Long = -9223372036854775807L,
+        max: Long = 9223372036854775807L,
         child: CommandBuilder.(long: ArgumentGetter<Long>) -> Unit,
     ) = next(child, { LongArgumentType.longArg(min, max) }, LongArgumentType::getLong)
 
