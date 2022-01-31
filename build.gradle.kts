@@ -1,5 +1,3 @@
-import net.fabricmc.loom.task.RemapJarTask
-import net.fabricmc.loom.task.RemapSourcesJarTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
@@ -93,9 +91,6 @@ tasks.withType<KotlinCompile> {
         jvmTarget = "17"
     }
 }
-
-val remapJar = tasks.getByName<RemapJarTask>("remapJar")
-val remapSourcesJar = tasks.getByName<RemapSourcesJarTask>("remapSourcesJar")
 
 val sourcesJar = tasks.create<Jar>("sourcesJar") {
     archiveClassifier.set("sources")
