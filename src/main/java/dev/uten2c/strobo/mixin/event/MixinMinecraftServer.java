@@ -1,9 +1,6 @@
 package dev.uten2c.strobo.mixin.event;
 
-import dev.uten2c.strobo.event.server.ServerEndTickEvent;
-import dev.uten2c.strobo.event.server.ServerStartTickEvent;
-import dev.uten2c.strobo.event.server.ServerStartingEvent;
-import dev.uten2c.strobo.event.server.ServerStoppingEvent;
+import dev.uten2c.strobo.event.server.*;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,6 +17,15 @@ public abstract class MixinMinecraftServer {
     private void beforeSetupServer(CallbackInfo ci) {
         try {
             new ServerStartingEvent((MinecraftServer) (Object) this).callEvent();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V", ordinal = 0), method = "runServer")
+    private void afterSetupServer(CallbackInfo info) {
+        try {
+            new ServerStartedEvent((MinecraftServer) (Object) this).callEvent();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -47,6 +53,15 @@ public abstract class MixinMinecraftServer {
     private void beforeShutdownServer(CallbackInfo info) {
         try {
             new ServerStoppingEvent((MinecraftServer) (Object) this).callEvent();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Inject(at = @At("TAIL"), method = "shutdown")
+    private void afterShutdownServer(CallbackInfo info) {
+        try {
+            new ServerStoppedEvent((MinecraftServer) (Object) this).callEvent();
         } catch (Exception e) {
             e.printStackTrace();
         }
