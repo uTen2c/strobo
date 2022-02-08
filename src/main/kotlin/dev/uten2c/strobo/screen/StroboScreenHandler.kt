@@ -108,8 +108,15 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
         val list = if (cursorStack.isEmpty) {
             stacks
         } else {
-            val array = slots.map { if (!it.canInsert(cursorStack) && !it.hasStack()) disabledSlotStack else it.stack }
-                .toTypedArray()
+            val array = slots.map {
+                if (it.inventory == player.inventory && it.index == player.inventory.selectedSlot) {
+                    return@map it.stack
+                }
+                if (!it.canInsert(cursorStack) && !it.hasStack()) {
+                    return@map disabledSlotStack
+                }
+                it.stack
+            }.toTypedArray()
             DefaultedList.copyOf(ItemStack.EMPTY, *array)
         }
         val packet = InventoryS2CPacket(syncId, nextRevision(), list, cursorStack)
