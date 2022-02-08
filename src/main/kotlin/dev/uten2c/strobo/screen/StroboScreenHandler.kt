@@ -1,8 +1,12 @@
 package dev.uten2c.strobo.screen
 
 import com.google.common.collect.HashBiMap
+import dev.uten2c.strobo.Strobo
 import dev.uten2c.strobo.util.customModelData
 import dev.uten2c.strobo.util.text
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
@@ -11,6 +15,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.network.packet.s2c.play.InventoryS2CPacket
 import net.minecraft.screen.ScreenHandler
+import net.minecraft.screen.ScreenHandlerListener
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.SlotActionType
 import net.minecraft.server.network.ServerPlayerEntity
@@ -26,6 +31,7 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
 
     private val blankInventory = BlankInventory()
     private val blankSlot = ImmutableSlot(blankInventory, 0)
+    private val updateTasks = HashMap<ServerPlayerEntity, Job>()
 
     val rows = getRowsByType(type)
     val size = rows * 9
@@ -70,16 +76,10 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
         sendContentUpdates()
     }
 
-    // ServerPlayerEntityで毎チック呼ばれてるのでそこどうにかすれば処理回数減らせるかも
-    override fun sendContentUpdates() {
-        super.sendContentUpdates()
-        listeners
-            .filterIsInstance<StroboScreenHandlerListener>()
-            .forEach { updateScreenHandler(it.player) }
-    }
-
     override fun close(player: PlayerEntity) {
         if (player is ServerPlayerEntity) {
+            updateTasks[player]?.cancel()
+            updateTasks.remove(player)
             val packet = InventoryS2CPacket(
                 player.playerScreenHandler.syncId,
                 player.playerScreenHandler.nextRevision(),
@@ -89,6 +89,18 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
             player.networkHandler.sendPacket(packet)
         }
         super.close(player)
+    }
+
+    override fun addListener(listener: ScreenHandlerListener) {
+        super.addListener(listener)
+        if (listener is StroboScreenHandlerListener) {
+            updateTasks[listener.player] = Strobo.scope.launch {
+                while (true) {
+                    updateScreenHandler(listener.player)
+                    delay(50)
+                }
+            }
+        }
     }
 
     /**
