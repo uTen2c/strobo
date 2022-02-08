@@ -52,10 +52,10 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
             val itemStack2 = slot.stack
             itemStack = itemStack2.copy()
             if (index < rows * 9) {
-                if (!insertItem(itemStack2, rows * 9, slots.size, true)) {
+                if (!insertItemCheckCanInsert(itemStack2, rows * 9, slots.size, true)) {
                     return ItemStack.EMPTY
                 }
-            } else if (!insertItem(itemStack2, 0, rows * 9, false)) {
+            } else if (!insertItemCheckCanInsert(itemStack2, 0, rows * 9, false)) {
                 return ItemStack.EMPTY
             }
             if (itemStack2.isEmpty) {
@@ -152,6 +152,93 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
      * 操作不可のスロットを追加
      */
     protected fun addBlankSlot(): MinecraftSlot = addSlot(blankSlot)
+
+    /**
+     * バニラの[ScreenHandler.insertItem]は対象のスロットがからの場合は[Slot.canInsert]を判定するが、元々同じ種類のアイテムが入っていた場合は[Slot.canInsert]を判定しないでそのまま個数を書き換えてしまうのでその修正
+     */
+    protected fun insertItemCheckCanInsert(
+        stack: ItemStack,
+        startIndex: Int,
+        endIndex: Int,
+        fromLast: Boolean,
+    ): Boolean {
+        var result = false
+        var index = startIndex
+        if (fromLast) {
+            index = endIndex - 1
+        }
+        var slot: MinecraftSlot
+        var itemStack: ItemStack
+        if (stack.isStackable) {
+            while (!stack.isEmpty) {
+                if (fromLast) {
+                    if (index < startIndex) {
+                        break
+                    }
+                } else if (index >= endIndex) {
+                    break
+                }
+                slot = slots[index]
+                itemStack = slot.stack
+                if (!slot.canInsert(itemStack)) {
+                    break
+                }
+                if (!itemStack.isEmpty && ItemStack.canCombine(stack, itemStack)) {
+                    val j = itemStack.count + stack.count
+                    if (j <= stack.maxCount) {
+                        stack.count = 0
+                        itemStack.count = j
+                        slot.markDirty()
+                        result = true
+                    } else if (itemStack.count < stack.maxCount) {
+                        stack.decrement(stack.maxCount - itemStack.count)
+                        itemStack.count = stack.maxCount
+                        slot.markDirty()
+                        result = true
+                    }
+                }
+                if (fromLast) {
+                    --index
+                } else {
+                    ++index
+                }
+            }
+        }
+        if (!stack.isEmpty) {
+            index = if (fromLast) {
+                endIndex - 1
+            } else {
+                startIndex
+            }
+            while (true) {
+                if (fromLast) {
+                    if (index < startIndex) {
+                        break
+                    }
+                } else if (index >= endIndex) {
+                    break
+                }
+                slot = slots[index]
+                itemStack = slot.stack
+                if (itemStack.isEmpty && slot.canInsert(stack)) {
+                    if (stack.count > slot.maxItemCount) {
+                        slot.stack = stack.split(slot.maxItemCount)
+                    } else {
+                        slot.stack = stack.split(stack.count)
+                    }
+                    slot.markDirty()
+                    result = true
+                    break
+                }
+                if (fromLast) {
+                    --index
+                } else {
+                    ++index
+                }
+            }
+        }
+        return result
+    }
 
     companion object {
         private val typeMap = HashBiMap.create(
