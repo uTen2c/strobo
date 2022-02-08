@@ -74,8 +74,8 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
     override fun sendContentUpdates() {
         super.sendContentUpdates()
         listeners
-            .filterIsInstance<ServerPlayerEntity>()
-            .forEach { updateScreenHandler(it) }
+            .filterIsInstance<StroboScreenHandlerListener>()
+            .forEach { updateScreenHandler(it.player) }
     }
 
     /**
@@ -112,7 +112,7 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
                 .toTypedArray()
             DefaultedList.copyOf(ItemStack.EMPTY, *array)
         }
-        val packet = InventoryS2CPacket(syncId, nextRevision(), list, ItemStack.EMPTY)
+        val packet = InventoryS2CPacket(syncId, nextRevision(), list, cursorStack)
         player.networkHandler.sendPacket(packet)
     }
 
