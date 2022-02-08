@@ -78,6 +78,19 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
             .forEach { updateScreenHandler(it.player) }
     }
 
+    override fun close(player: PlayerEntity) {
+        if (player is ServerPlayerEntity) {
+            val packet = InventoryS2CPacket(
+                player.playerScreenHandler.syncId,
+                player.playerScreenHandler.nextRevision(),
+                player.playerScreenHandler.stacks,
+                player.playerScreenHandler.cursorStack,
+            )
+            player.networkHandler.sendPacket(packet)
+        }
+        super.close(player)
+    }
+
     /**
      * プレイヤーのインベントリー領域にあたるスロットを追加する
      * @param playerInventory 対象のプレイヤーのインベントリー
