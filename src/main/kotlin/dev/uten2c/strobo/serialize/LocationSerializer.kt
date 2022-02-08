@@ -7,7 +7,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-object LocationSerializer : KSerializer<Location> {
+internal object LocationSerializer : KSerializer<Location> {
 
     override val descriptor: SerialDescriptor = LocationSurrogate.serializer().descriptor
 
@@ -23,4 +23,4 @@ object LocationSerializer : KSerializer<Location> {
 }
 
 @Serializable
-data class LocationSurrogate(val x: Double, val y: Double, val z: Double, val yaw: Float, val pitch: Float)
+internal data class LocationSurrogate(val x: Double, val y: Double, val z: Double, val yaw: Float, val pitch: Float)
