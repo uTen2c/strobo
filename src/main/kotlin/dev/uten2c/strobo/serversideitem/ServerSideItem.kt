@@ -2,10 +2,11 @@ package dev.uten2c.strobo.serversideitem
 
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.text.Style
-import net.minecraft.text.TranslatableText
 import net.minecraft.util.registry.Registry
 
+/**
+ * [Item]と一緒に実装しなければならない
+ */
 interface ServerSideItem {
 
     /**
@@ -22,11 +23,9 @@ interface ServerSideItem {
         val stack = itemStack.copy()
         val item = stack.getItem()
         val id = Registry.ITEM.getId(item)
-        val translationKey = "item." + id.namespace + "." + id.path
-        val customName = TranslatableText(translationKey).setStyle(Style.EMPTY.withItalic(false))
         stack.item = visualItem
         if (!stack.hasCustomName()) {
-            stack.setCustomName(customName)
+            stack.setCustomName((this as Item).name)
         }
         val tag = stack.orCreateNbt
         tag.putString(TAG_KEY, id.toString())
