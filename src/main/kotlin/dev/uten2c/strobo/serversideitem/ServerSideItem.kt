@@ -1,5 +1,6 @@
 package dev.uten2c.strobo.serversideitem
 
+import dev.uten2c.strobo.util.italic
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.util.registry.Registry
@@ -25,7 +26,7 @@ interface ServerSideItem {
         val id = Registry.ITEM.getId(item)
         stack.item = visualItem
         if (!stack.hasCustomName()) {
-            stack.setCustomName((this as Item).name)
+            stack.setCustomName((this as Item).name.copy().italic(false))
         }
         val tag = stack.orCreateNbt
         tag.putString(TAG_KEY, id.toString())
