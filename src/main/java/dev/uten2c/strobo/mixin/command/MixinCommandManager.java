@@ -39,7 +39,7 @@ public class MixinCommandManager {
     // バニラのgiveコマンドを置き換え
     @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/GiveCommand;register(Lcom/mojang/brigadier/CommandDispatcher;)V"))
     private void replaceGiveCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
-        if (Strobo.replaceGiveCommand) {
+        if (Strobo.options.replaceGiveCommand) {
             StroboGiveCommand.register();
         } else {
             GiveCommand.register(dispatcher);
@@ -49,7 +49,7 @@ public class MixinCommandManager {
     // バニラのsummonコマンドを置き換え
     @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/SummonCommand;register(Lcom/mojang/brigadier/CommandDispatcher;)V"))
     private void replaceSummonCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
-        if (Strobo.replaceSummonCommand) {
+        if (Strobo.options.replaceSummonCommand) {
             StroboSummonCommand.register();
         } else {
             SummonCommand.register(dispatcher);

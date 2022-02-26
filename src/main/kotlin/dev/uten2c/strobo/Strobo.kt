@@ -3,6 +3,7 @@ package dev.uten2c.strobo
 import dev.uten2c.strobo.command.StroboCommand
 import dev.uten2c.strobo.event.Event
 import dev.uten2c.strobo.event.EventListener
+import dev.uten2c.strobo.option.StroboOptions
 import dev.uten2c.strobo.task.TaskRunner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,10 +15,7 @@ import kotlin.reflect.KClass
 
 object Strobo : ModInitializer {
     @JvmField
-    var replaceGiveCommand = true
-
-    @JvmField
-    var replaceSummonCommand = true
+    val options = StroboOptions()
 
     internal val logger = LoggerFactory.getLogger("Strobo")
     internal val eventListeners = HashMap<KClass<out Event>, HashSet<EventListener>>()

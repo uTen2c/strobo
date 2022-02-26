@@ -18,7 +18,8 @@
     "screen.MixinServerPlayerEntity",
     "serversideitem.MixinEntityTrackerUpdateS2CPacket",
     "serversideitem.MixinPacketByteBuf",
-    "serversideitem.MixinServerPlayNetworkHandler"
+    "serversideitem.MixinServerPlayNetworkHandler",
+    "stat.MixinServerStatHandler"
   ],
   "injectors": {
     "defaultRequire": 1
