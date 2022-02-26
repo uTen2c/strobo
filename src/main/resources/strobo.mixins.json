@@ -5,6 +5,9 @@
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "MixinRegistrySyncManager",
+    "advancement.MixinAbstractCriterion",
+    "advancement.MixinAdvancementManager",
+    "advancement.MixinPlayerAdvancementTracker",
     "command.MixinCommandManager",
     "event.MixinItemEntity",
     "event.MixinLivingEntity",
