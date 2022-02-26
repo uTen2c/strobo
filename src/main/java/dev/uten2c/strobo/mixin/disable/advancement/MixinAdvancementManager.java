@@ -1,4 +1,4 @@
-package dev.uten2c.strobo.mixin.advancement;
+package dev.uten2c.strobo.mixin.disable.advancement;
 
 import dev.uten2c.strobo.Strobo;
 import net.minecraft.advancement.Advancement;

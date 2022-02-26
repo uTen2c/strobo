@@ -5,4 +5,11 @@ data class StroboOptions(
     @JvmField var replaceSummonCommand: Boolean = true,
     @JvmField var disableStats: Boolean = false,
     @JvmField var disableAdvancements: Boolean = false,
-)
+    @JvmField var disableRecipes: Boolean = false,
+) {
+    fun disableAll() {
+        disableStats = true
+        disableAdvancements = true
+        disableRecipes = true
+    }
+}

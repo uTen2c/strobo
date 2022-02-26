@@ -1,4 +1,4 @@
-package dev.uten2c.strobo.mixin.stat;
+package dev.uten2c.strobo.mixin.disable.stat;
 
 import com.mojang.datafixers.DataFixer;
 import dev.uten2c.strobo.Strobo;
