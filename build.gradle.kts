@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "dev.uten2c"
-version = "66"
+version = "67"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -38,20 +38,22 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
-fun DependencyHandlerScope.modIncludeImplementation(dep: Any) {
+fun DependencyHandlerScope.includeModImplementation(dep: Any) {
     include(dep)
     modImplementation(dep)
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.18.1")
-    mappings("net.fabricmc:yarn:1.18.1+build.22:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.12.12")
+    minecraft("com.mojang:minecraft:1.18.2")
+    mappings("net.fabricmc:yarn:1.18.2+build.2:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.13.3")
     modImplementation("net.fabricmc:fabric-language-kotlin:1.7.1+kotlin.1.6.10")
-    modIncludeImplementation(fabricApi.module("fabric-api-base", "0.46.1+1.18"))
-    modIncludeImplementation(fabricApi.module("fabric-resource-loader-v0", "0.46.1+1.18"))
-    modIncludeImplementation(fabricApi.module("fabric-gametest-api-v1", "0.46.1+1.18"))
-    modIncludeImplementation(fabricApi.module("fabric-registry-sync-v0", "0.46.1+1.18"))
+    arrayOf(
+        "fabric-api-base",
+        "fabric-resource-loader-v0",
+        "fabric-gametest-api-v1",
+        "fabric-registry-sync-v0",
+    ).forEach { includeModImplementation(fabricApi.module(it, "0.48.0+1.18.2")) }
 }
 
 loom {
@@ -77,7 +79,7 @@ loom {
 }
 
 configure<KtlintExtension> {
-    version.set("0.44.0-SNAPSHOT")
+    version.set("0.45.1")
     additionalEditorconfigFile.set(file(".editorconfig"))
     enableExperimentalRules.set(true)
 }

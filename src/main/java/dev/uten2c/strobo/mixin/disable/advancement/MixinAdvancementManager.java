@@ -14,7 +14,7 @@ import java.util.Map;
 @Mixin(AdvancementManager.class)
 public class MixinAdvancementManager {
     @Inject(method = "load", at = @At("HEAD"), cancellable = true)
-    private void load(Map<Identifier, Advancement.Task> map, CallbackInfo ci) {
+    private void load(Map<Identifier, Advancement.Builder> map, CallbackInfo ci) {
         if (Strobo.options.disableAdvancements) {
             ci.cancel();
         }

@@ -28,8 +28,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldView;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -76,9 +76,6 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     private int movePacketsCount;
     @Shadow
     private int lastTickMovePacketsCount;
-    @Shadow
-    @Final
-    static Logger LOGGER;
 
     @Shadow
     protected abstract boolean isHost();
@@ -119,6 +116,10 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     private static boolean isMovementInvalid(double x, double y, double z, float yaw, float pitch) {
         return false;
     }
+
+    @Shadow
+    @Final
+    static Logger LOGGER;
 
     private double strobo$lastPosX = Double.MAX_VALUE;
     private double strobo$lastPosY = Double.MAX_VALUE;
