@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "MixinRegistrySyncManager",
+    "accessor.ItemStackAccessor",
     "command.MixinCommandManager",
     "disable.advancement.MixinAbstractCriterion",
     "disable.advancement.MixinAdvancementManager",
@@ -21,9 +22,20 @@
     "impl.MixinPlayerInventory",
     "playerlist.MixinServerPlayerEntity",
     "screen.MixinServerPlayerEntity",
+    "serversideitem.MixinClientConnection",
     "serversideitem.MixinEntityTrackerUpdateS2CPacket",
     "serversideitem.MixinPacketByteBuf",
-    "serversideitem.MixinServerPlayNetworkHandler"
+    "serversideitem.MixinPacketEncoder",
+    "serversideitem.MixinPlayerManager",
+    "serversideitem.MixinServerPlayNetworkHandler",
+    "serversideitem.packet.MixinAdvancementUpdateS2CPacket",
+    "serversideitem.packet.MixinEntityEquipmentUpdateS2CPacket",
+    "serversideitem.packet.MixinEntityTrackerUpdateS2CPacket",
+    "serversideitem.packet.MixinInventoryS2CPacket",
+    "serversideitem.packet.MixinParticleS2CPacket",
+    "serversideitem.packet.MixinScreenHandlerSlotUpdateS2CPacket",
+    "serversideitem.packet.MixinSetTradeOffersS2CPacket",
+    "serversideitem.packet.MixinSynchronizeRecipesS2CPacket"
   ],
   "injectors": {
     "defaultRequire": 1

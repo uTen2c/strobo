@@ -1,6 +1,7 @@
 package dev.uten2c.strobo.mixin.serversideitem;
 
 import dev.uten2c.strobo.serversideitem.ServerSideItem;
+import dev.uten2c.strobo.util.UuidHolder;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,8 +25,11 @@ public class MixinEntityTrackerUpdateS2CPacket {
             if (value instanceof ItemStack stack) {
                 Item item = stack.getItem();
                 if (item instanceof ServerSideItem serverSideItem) {
-                    stack = serverSideItem.createVisualStack(stack);
-                    stack.removeCustomName();
+                    var player = ((UuidHolder) packetByteBuf).getPlayerOrNull();
+                    if (player != null) {
+                        stack = serverSideItem.createVisualStack(stack, player);
+                        stack.removeCustomName();
+                    }
                 }
 
                 entry.set((T) stack);

@@ -1,8 +1,10 @@
 package dev.uten2c.strobo.serversideitem
 
+import dev.uten2c.strobo.mixin.accessor.ItemStackAccessor
 import dev.uten2c.strobo.util.italic
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.registry.Registry
 
 /**
@@ -19,12 +21,12 @@ interface ServerSideItem {
      * プレイヤーに送信されるアイテムを生成する
      * @return 生成された[ItemStack]
      */
-    @Suppress("DEPRECATION")
-    fun createVisualStack(itemStack: ItemStack): ItemStack {
-        val stack = itemStack.copy()
-        val item = stack.getItem()
+    @Suppress("DEPRECATION", "CAST_NEVER_SUCCEEDS")
+    fun createVisualStack(original: ItemStack, player: ServerPlayerEntity): ItemStack {
+        val stack = original.copy()
+        val item = stack.item
         val id = Registry.ITEM.getId(item)
-        stack.item = visualItem
+        (stack as ItemStackAccessor).setItem(visualItem)
         if (!stack.hasCustomName()) {
             stack.setCustomName((this as Item).name.copy().italic(false))
         }
