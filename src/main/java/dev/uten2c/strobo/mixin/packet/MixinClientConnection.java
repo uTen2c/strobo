@@ -1,14 +1,14 @@
-package dev.uten2c.strobo.mixin.serversideitem.packet;
+package dev.uten2c.strobo.mixin.packet;
 
 import dev.uten2c.strobo.util.UuidHolder;
-import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
+import net.minecraft.network.ClientConnection;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.UUID;
 
-@Mixin(ParticleS2CPacket.class)
-public class MixinParticleS2CPacket implements UuidHolder {
+@Mixin(ClientConnection.class)
+public class MixinClientConnection implements UuidHolder {
     private UUID strobo$uuid;
 
     @Override

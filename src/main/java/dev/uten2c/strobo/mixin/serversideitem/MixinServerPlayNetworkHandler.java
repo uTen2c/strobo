@@ -1,6 +1,7 @@
 package dev.uten2c.strobo.mixin.serversideitem;
 
 import dev.uten2c.strobo.mixin.accessor.ItemStackAccessor;
+import dev.uten2c.strobo.serversideitem.RenderType;
 import dev.uten2c.strobo.serversideitem.ServerSideItem;
 import dev.uten2c.strobo.util.UuidHolder;
 import io.netty.util.concurrent.Future;
@@ -65,7 +66,7 @@ public class MixinServerPlayNetworkHandler {
         NbtCompound tag = copy.getNbt();
         if (tag != null) {
             tag.remove(ServerSideItem.TAG_KEY);
-            ItemStack defaultVisualStack = ((ServerSideItem) item).createVisualStack(item.getDefaultStack(), player);
+            ItemStack defaultVisualStack = ((ServerSideItem) item).createVisualStack(item.getDefaultStack(), player, RenderType.INVENTORY);
             NbtCompound displayTag1 = copy.getSubNbt("display");
             NbtCompound displayTag2 = defaultVisualStack.getSubNbt("display");
             if (displayTag1 != null && displayTag2 != null) {

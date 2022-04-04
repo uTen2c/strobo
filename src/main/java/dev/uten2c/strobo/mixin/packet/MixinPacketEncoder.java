@@ -1,4 +1,4 @@
-package dev.uten2c.strobo.mixin.serversideitem;
+package dev.uten2c.strobo.mixin.packet;
 
 import dev.uten2c.strobo.util.UuidHolder;
 import io.netty.buffer.ByteBuf;

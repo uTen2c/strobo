@@ -22,7 +22,7 @@ interface ServerSideItem {
      * @return 生成された[ItemStack]
      */
     @Suppress("DEPRECATION", "CAST_NEVER_SUCCEEDS")
-    fun createVisualStack(original: ItemStack, player: ServerPlayerEntity): ItemStack {
+    fun createVisualStack(original: ItemStack, player: ServerPlayerEntity, renderType: RenderType): ItemStack {
         val stack = original.copy()
         val item = stack.item
         val id = Registry.ITEM.getId(item)

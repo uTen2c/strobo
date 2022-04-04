@@ -1,13 +1,17 @@
 package dev.uten2c.strobo.mixin.serversideitem;
 
+import dev.uten2c.strobo.serversideitem.RenderType;
 import dev.uten2c.strobo.serversideitem.ServerSideItem;
 import dev.uten2c.strobo.util.UuidHolder;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -15,6 +19,10 @@ import java.util.List;
 
 @Mixin(EntityTrackerUpdateS2CPacket.class)
 public class MixinEntityTrackerUpdateS2CPacket {
+
+    @Shadow
+    @Final
+    private int id;
 
     // エンティティがアイテムを持ってるときとか額縁にアイテムが入ってたりするときに送信されるパケットを偽装してる
     @SuppressWarnings("unchecked")
@@ -27,7 +35,9 @@ public class MixinEntityTrackerUpdateS2CPacket {
                 if (item instanceof ServerSideItem serverSideItem) {
                     var player = ((UuidHolder) packetByteBuf).getPlayerOrNull();
                     if (player != null) {
-                        stack = serverSideItem.createVisualStack(stack, player);
+                        var entity = player.getWorld().getEntityById(id);
+                        var renderType = entity instanceof ItemEntity ? RenderType.ITEM_ENTITY : RenderType.THIRD_PERSON;
+                        stack = serverSideItem.createVisualStack(stack, player, renderType);
                         stack.removeCustomName();
                     }
                 }
