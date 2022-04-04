@@ -5,7 +5,6 @@ import dev.uten2c.strobo.serversideitem.ServerSideItem;
 import dev.uten2c.strobo.util.UuidHolder;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.data.DataTracker;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
@@ -29,9 +28,9 @@ public class MixinEntityTrackerUpdateS2CPacket {
     @Redirect(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/data/DataTracker;entriesToPacket(Ljava/util/List;Lnet/minecraft/network/PacketByteBuf;)V"))
     private <T> void write(List<DataTracker.Entry<T>> list, PacketByteBuf packetByteBuf) {
         for (DataTracker.Entry<T> entry : list) {
-            T value = entry.get();
+            var value = entry.get();
             if (value instanceof ItemStack stack) {
-                Item item = stack.getItem();
+                var item = stack.getItem();
                 if (item instanceof ServerSideItem serverSideItem) {
                     var player = ((UuidHolder) packetByteBuf).getPlayerOrNull();
                     if (player != null) {

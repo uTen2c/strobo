@@ -50,8 +50,8 @@ public abstract class MixinLivingEntity extends Entity {
 
     @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V", ordinal = 0), cancellable = true)
     private void callEntityDamageEvent0(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        LivingEntity entity = ((LivingEntity) (Object) this);
-        EntityDamageEvent event = new EntityDamageEvent(entity, amount, source);
+        var entity = ((LivingEntity) (Object) this);
+        var event = new EntityDamageEvent(entity, amount, source);
         if (!event.callEvent()) {
             cir.setReturnValue(false);
         }
@@ -60,8 +60,8 @@ public abstract class MixinLivingEntity extends Entity {
 
     @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V", ordinal = 1), cancellable = true)
     private void callEntityDamageEvent1(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        LivingEntity entity = ((LivingEntity) (Object) this);
-        EntityDamageEvent event = new EntityDamageEvent(entity, amount, source);
+        var entity = ((LivingEntity) (Object) this);
+        var event = new EntityDamageEvent(entity, amount, source);
         if (!event.callEvent()) {
             lastDamageTaken = strobo$lastDamageTaken;
             timeUntilRegen = strobo$timeUntilRegen;

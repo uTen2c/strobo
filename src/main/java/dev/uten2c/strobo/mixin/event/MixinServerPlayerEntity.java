@@ -7,7 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.SetCameraEntityS2CPacket;
@@ -49,20 +48,20 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity {
     // @Overwrite
     @Inject(method = "setCameraEntity", at = @At("HEAD"), cancellable = true)
     public void callPlayerStartSpectatingEntityEventAndPlayerStopSpectatingEntityEvent(Entity newTargetEntity, CallbackInfo ci) {
-        Entity currentTarget = this.getCameraEntity();
+        var currentTarget = this.getCameraEntity();
         newTargetEntity = newTargetEntity == null ? this : newTargetEntity;
         if (currentTarget == newTargetEntity) {
             ci.cancel();
         }
 
-        ServerPlayerEntity self = (ServerPlayerEntity) (Object) this;
+        var self = (ServerPlayerEntity) (Object) this;
         if (newTargetEntity == this) {
-            PlayerStopSpectatingEntityEvent event = new PlayerStopSpectatingEntityEvent(self, currentTarget);
+            var event = new PlayerStopSpectatingEntityEvent(self, currentTarget);
             if (!event.callEvent()) {
                 ci.cancel();
             }
         } else {
-            PlayerStartSpectatingEntityEvent event = new PlayerStartSpectatingEntityEvent(self, currentTarget, newTargetEntity);
+            var event = new PlayerStartSpectatingEntityEvent(self, currentTarget, newTargetEntity);
             if (!event.callEvent()) {
                 ci.cancel();
             }
@@ -90,16 +89,16 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity {
     }
 
     public ItemEntity dropItem(ItemStack stack, boolean throwRandomly, boolean retainOwnership) {
-        ItemEntity itemEntity = super.dropItem(stack, throwRandomly, retainOwnership);
+        var itemEntity = super.dropItem(stack, throwRandomly, retainOwnership);
         if (itemEntity == null) {
             return null;
         } else {
             // イベント部分
-            ServerPlayerEntity self = (ServerPlayerEntity) (Object) this;
-            PlayerDropItemEvent event = new PlayerDropItemEvent(self, itemEntity);
+            var self = (ServerPlayerEntity) (Object) this;
+            var event = new PlayerDropItemEvent(self, itemEntity);
             if (!event.callEvent()) {
-                PlayerInventory inventory = self.getInventory();
-                ItemStack current = inventory.getMainHandStack();
+                var inventory = self.getInventory();
+                var current = inventory.getMainHandStack();
                 if (retainOwnership && (current == null || current.getCount() == 0)) {
                     inventory.setStack(inventory.selectedSlot, stack);
                     strobo$sendSlotPacket(self, stack);
@@ -116,7 +115,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity {
             // イベント部分　おわり
 
             this.world.spawnEntity(itemEntity);
-            ItemStack itemStack = itemEntity.getStack();
+            var itemStack = itemEntity.getStack();
             if (retainOwnership) {
                 if (!itemStack.isEmpty()) {
                     this.increaseStat(Stats.DROPPED.getOrCreateStat(itemStack.getItem()), stack.getCount());

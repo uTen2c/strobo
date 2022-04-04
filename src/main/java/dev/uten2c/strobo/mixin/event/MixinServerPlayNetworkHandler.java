@@ -7,7 +7,6 @@ import dev.uten2c.strobo.util.ServerPlayerEntityKt;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.MessageType;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.listener.ServerPlayPacketListener;
@@ -19,7 +18,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.Box;
@@ -132,7 +130,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
 
     @Redirect(method = "onDisconnected", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Lnet/minecraft/network/MessageType;Ljava/util/UUID;)V"))
     private void onQuit(PlayerManager playerManager, Text message, MessageType type, UUID senderUuid) {
-        PlayerQuitEvent event = new PlayerQuitEvent(player, message);
+        var event = new PlayerQuitEvent(player, message);
         event.callEvent();
         playerManager.broadcast(event.getMessage(), type, senderUuid);
     }
@@ -145,7 +143,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
         if (isMovementInvalid(packet.getX(0.0D), packet.getY(0.0D), packet.getZ(0.0D), packet.getYaw(0.0F), packet.getPitch(0.0F))) {
             this.disconnect(new TranslatableText("multiplayer.disconnect.invalid_player_movement"));
         } else {
-            ServerWorld serverWorld = this.player.getWorld();
+            var serverWorld = this.player.getWorld();
 
             if (!this.player.notInAnyWorld && !this.player.isImmobile()) { // CraftBukkit
                 if (this.ticks == 0) {
@@ -160,11 +158,11 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                     this.strobo$allowedPlayerTicks = 20; // CraftBukkit
                 } else {
                     this.teleportRequestTick = this.ticks;
-                    double d0 = clampHorizontal(packet.getX(this.player.getX()));
-                    double d1 = clampVertical(packet.getY(this.player.getY()));
-                    double d2 = clampHorizontal(packet.getZ(this.player.getZ()));
-                    float g = MathHelper.wrapDegrees(packet.getYaw(this.player.getYaw()));
-                    float h = MathHelper.wrapDegrees(packet.getPitch(this.player.getPitch()));
+                    var d0 = clampHorizontal(packet.getX(this.player.getX()));
+                    var d1 = clampVertical(packet.getY(this.player.getY()));
+                    var d2 = clampHorizontal(packet.getZ(this.player.getZ()));
+                    var g = MathHelper.wrapDegrees(packet.getYaw(this.player.getYaw()));
+                    var h = MathHelper.wrapDegrees(packet.getPitch(this.player.getPitch()));
 
                     if (this.player.hasVehicle()) {
                         this.player.updatePositionAndAngles(this.player.getX(), this.player.getY(), this.player.getZ(), g, h);
@@ -172,30 +170,30 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                         this.strobo$allowedPlayerTicks = 20; // CraftBukkit
                     } else {
                         // CraftBukkit - Make sure the move is valid but then reset it for plugins to modify
-                        double prevX = this.player.getX();
-                        double prevY = this.player.getY();
-                        double prevZ = this.player.getZ();
-                        float prevYaw = this.player.getYaw();
-                        float prevPitch = this.player.getPitch();
+                        var prevX = this.player.getX();
+                        var prevY = this.player.getY();
+                        var prevZ = this.player.getZ();
+                        var prevYaw = this.player.getYaw();
+                        var prevPitch = this.player.getPitch();
                         // CraftBukkit end
-                        double toX = this.player.getX();
-                        double toY = this.player.getY();
-                        double toZ = this.player.getZ();
-                        double l = this.player.getY();
-                        double d7 = d0 - this.lastTickX;
-                        double d8 = d1 - this.lastTickY;
-                        double d9 = d2 - this.lastTickZ;
-                        double d10 = this.player.getVelocity().lengthSquared();
+                        var toX = this.player.getX();
+                        var toY = this.player.getY();
+                        var toZ = this.player.getZ();
+                        var l = this.player.getY();
+                        var d7 = d0 - this.lastTickX;
+                        var d8 = d1 - this.lastTickY;
+                        var d9 = d2 - this.lastTickZ;
+                        var d10 = this.player.getVelocity().lengthSquared();
                         // Paper start - fix large move vectors killing the server
-                        double currDeltaX = toX - prevX;
-                        double currDeltaY = toY - prevY;
-                        double currDeltaZ = toZ - prevZ;
-                        double d11 = Math.max(d7 * d7 + d8 * d8 + d9 * d9, (currDeltaX * currDeltaX + currDeltaY * currDeltaY + currDeltaZ * currDeltaZ) - 1);
+                        var currDeltaX = toX - prevX;
+                        var currDeltaY = toY - prevY;
+                        var currDeltaZ = toZ - prevZ;
+                        var d11 = Math.max(d7 * d7 + d8 * d8 + d9 * d9, (currDeltaX * currDeltaX + currDeltaY * currDeltaY + currDeltaZ * currDeltaZ) - 1);
                         // Paper end - fix large move vectors killing the server
                         // Paper start - fix large move vectors killing the server
-                        double otherFieldX = d0 - this.updatedX;
-                        double otherFieldY = d1 - this.updatedY;
-                        double otherFieldZ = d2 - this.updatedZ;
+                        var otherFieldX = d0 - this.updatedX;
+                        var otherFieldY = d1 - this.updatedY;
+                        var otherFieldZ = d2 - this.updatedZ;
                         d11 = Math.max(d11, (otherFieldX * otherFieldX + otherFieldY * otherFieldY + otherFieldZ * otherFieldZ) - 1);
                         // Paper end - fix large move vectors killing the server
 
@@ -237,7 +235,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                             // Paper end
 
                             if (!this.player.isInTeleportationState() && (!this.player.getWorld().getGameRules().getBoolean(GameRules.DISABLE_ELYTRA_MOVEMENT_CHECK) || !this.player.isFallFlying())) {
-                                float f2 = this.player.isFallFlying() ? 300.0F : 100.0F;
+                                var f2 = this.player.isFallFlying() ? 300.0F : 100.0F;
 
                                 if (d11 - d10 > Math.max(f2, Math.pow(10.0 * (float) r * speed, 2)) && !this.isHost()) {
                                     // CraftBukkit end
@@ -247,12 +245,12 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                                 }
                             }
 
-                            Box box = this.player.getBoundingBox();
+                            var box = this.player.getBoundingBox();
 
                             d7 = d0 - this.updatedX; // Paper - diff on change, used for checking large move vectors above
                             d8 = d1 - this.updatedY; // Paper - diff on change, used for checking large move vectors above
                             d9 = d2 - this.updatedZ; // Paper - diff on change, used for checking large move vectors above
-                            boolean flag = d8 > 0.0D;
+                            var flag = d8 > 0.0D;
 
                             if (this.player.isOnGround() && !packet.isOnGround() && flag) {
                                 this.player.jump();
@@ -265,7 +263,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                                 ci.cancel(); // ... thanks Mojang for letting move calls teleport across dimensions.
                             }
                             // Paper end - prevent position desync
-                            double d12 = d8;
+                            var d12 = d8;
 
                             d7 = d0 - this.player.getX();
                             d8 = d1 - this.player.getY();
@@ -275,7 +273,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
 
                             d9 = d2 - this.player.getZ();
                             d11 = d7 * d7 + d8 * d8 + d9 * d9;
-                            boolean flag1 = false;
+                            var flag1 = false;
 
                             if (!this.player.isInTeleportationState() && d11 > 0.0625D && !this.player.isSleeping() && !this.player.interactionManager.isCreative() && this.player.interactionManager.getGameMode() != GameMode.SPECTATOR) {
                                 flag1 = true;
@@ -305,8 +303,8 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
                                 }
 
                                 // Prevent 40 event-calls for less than a single pixel of movement >.>
-                                double delta = Math.pow(this.strobo$lastPosX - to.getX(), 2) + Math.pow(this.strobo$lastPosY - to.getY(), 2) + Math.pow(this.strobo$lastPosZ - to.getZ(), 2);
-                                float deltaAngle = Math.abs(this.strobo$lastYaw - to.yaw) + Math.abs(this.strobo$lastPitch - to.pitch);
+                                var delta = Math.pow(this.strobo$lastPosX - to.getX(), 2) + Math.pow(this.strobo$lastPosY - to.getY(), 2) + Math.pow(this.strobo$lastPosZ - to.getZ(), 2);
+                                var deltaAngle = Math.abs(this.strobo$lastYaw - to.yaw) + Math.abs(this.strobo$lastPitch - to.pitch);
 
                                 if ((delta > 1f / 16384 || deltaAngle > 1f) && !this.player.isImmobile()) {
                                     this.strobo$lastPosX = to.getX();
@@ -391,9 +389,9 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
 
     @Inject(method = "onPlayerAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getStackInHand(Lnet/minecraft/util/Hand;)Lnet/minecraft/item/ItemStack;", shift = At.Shift.AFTER), cancellable = true)
     private void callPlayerSwapHandItemsEvent(PlayerActionC2SPacket packet, CallbackInfo ci) {
-        ItemStack mainHandStack = player.getMainHandStack();
-        ItemStack offHandStack = player.getOffHandStack();
-        PlayerSwapHandItemsEvent event = new PlayerSwapHandItemsEvent(player, mainHandStack, offHandStack);
+        var mainHandStack = player.getMainHandStack();
+        var offHandStack = player.getOffHandStack();
+        var event = new PlayerSwapHandItemsEvent(player, mainHandStack, offHandStack);
         if (!event.callEvent()) {
             ci.cancel();
         }

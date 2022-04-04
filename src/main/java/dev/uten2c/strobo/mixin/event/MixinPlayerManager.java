@@ -29,7 +29,7 @@ public class MixinPlayerManager {
 
     @Redirect(method = "onPlayerConnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Lnet/minecraft/network/MessageType;Ljava/util/UUID;)V"))
     private void onJoin(PlayerManager playerManager, Text message, MessageType type, UUID senderUuid) {
-        PlayerJoinEvent event = new PlayerJoinEvent(player, connection, message);
+        var event = new PlayerJoinEvent(player, connection, message);
         event.callEvent();
         playerManager.broadcast(event.getMessage(), type, senderUuid);
     }

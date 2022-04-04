@@ -1,9 +1,7 @@
 package dev.uten2c.strobo.mixin.event;
 
 import dev.uten2c.strobo.event.block.BlockBreakEvent;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
@@ -33,16 +31,14 @@ public abstract class MixinServerPlayerInteractionManager {
     // BlockBreakEventを呼び出してる
     @Inject(method = "tryBreakBlock", at = @At("HEAD"), cancellable = true)
     private void blockBreakEvent(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        BlockState blockState = this.world.getBlockState(pos);
-
-        BlockBreakEvent event;
-        boolean isSwordNoBreak = !player.getMainHandStack().getItem().canMine(blockState, world, pos, player);
+        var blockState = this.world.getBlockState(pos);
+        var isSwordNoBreak = !player.getMainHandStack().getItem().canMine(blockState, world, pos, player);
 
         if (world.getBlockEntity(pos) == null && !isSwordNoBreak) {
             player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, Blocks.AIR.getDefaultState()));
         }
 
-        event = new BlockBreakEvent(blockState, pos, player);
+        var event = new BlockBreakEvent(blockState, pos, player);
         event.setCancelled(isSwordNoBreak);
         event.callEvent();
 
@@ -53,11 +49,11 @@ public abstract class MixinServerPlayerInteractionManager {
 
             player.networkHandler.sendPacket(new BlockUpdateS2CPacket(world, pos));
 
-            for (Direction dir : Direction.values()) {
+            for (var dir : Direction.values()) {
                 player.networkHandler.sendPacket(new BlockUpdateS2CPacket(world, pos.offset(dir)));
             }
 
-            BlockEntity blockEntity = world.getBlockEntity(pos);
+            var blockEntity = world.getBlockEntity(pos);
             if (blockEntity != null) {
                 player.networkHandler.sendPacket(blockEntity.toUpdatePacket());
             }
