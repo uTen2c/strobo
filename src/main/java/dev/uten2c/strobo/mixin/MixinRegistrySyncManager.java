@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinRegistrySyncManager {
 
     // FabricAPIのレジストリー同期機能を無効化
-    @Inject(method = "sendPacket(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/server/network/ServerPlayerEntity;)V", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "sendPacket(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/server/network/ServerPlayerEntity;)V", at = @At("HEAD"), cancellable = true)
     private static void disable(MinecraftServer server, ServerPlayerEntity player, CallbackInfo ci) {
         ci.cancel();
     }
