@@ -27,6 +27,7 @@ sourceSets {
     }
 }
 
+@Suppress("UnstableApiUsage")
 tasks.getByName<ProcessResources>("processResources") {
     filesMatching("fabric.mod.json") {
         expand(mutableMapOf("version" to project.version))
