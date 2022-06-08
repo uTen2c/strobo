@@ -1,0 +1,23 @@
+name: Publish
+on: [ push ]
+concurrency: ci-${{ github.ref }}
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    container:
+      image: openjdk:18-jdk
+      options: --user root
+    steps:
+      - uses: actions/checkout@v2
+      - uses: gradle/wrapper-validation-action@v1
+      - name: Generate build number
+        uses: einaregilsson/build-number@v3
+        with:
+          token: ${{secrets.github_token}}
+      - run: git clone git@github.com:uTen2c/repo.git
+        working-directory: ~/
+      - run: ./gradlew build publish --stacktrace
+      - uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main

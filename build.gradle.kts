@@ -9,8 +9,11 @@ plugins {
     `maven-publish`
 }
 
+val minecraftVersion = "1.19"
+val buildNumber = System.getenv()["BUILD_NUMBER"] ?: "local"
+
 group = "dev.uten2c"
-version = "1.0.0"
+version = "$minecraftVersion+build.$buildNumber"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -30,7 +33,12 @@ sourceSets {
 @Suppress("UnstableApiUsage")
 tasks.getByName<ProcessResources>("processResources") {
     filesMatching("fabric.mod.json") {
-        expand(mutableMapOf("version" to project.version))
+        expand(
+            mutableMapOf(
+                "version" to project.version,
+                "minecraftVersion" to minecraftVersion
+            ),
+        )
     }
 }
 
