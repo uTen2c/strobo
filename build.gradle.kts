@@ -36,7 +36,7 @@ tasks.getByName<ProcessResources>("processResources") {
         expand(
             mutableMapOf(
                 "version" to project.version,
-                "minecraftVersion" to minecraftVersion
+                "minecraftVersion" to minecraftVersion,
             ),
         )
     }

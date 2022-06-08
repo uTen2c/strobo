@@ -89,6 +89,8 @@ import kotlin.reflect.jvm.ExperimentalReflectionOnLambdas
 import kotlin.reflect.jvm.reflect
 import com.mojang.brigadier.context.CommandContext as BrigadierCommandContext
 
+typealias FunctionOrTagType = Pair<Identifier, Either<CommandFunction, Collection<CommandFunction>>>
+
 @Suppress("unused")
 class CommandBuilder(
     private val builder: ArgumentBuilder<ServerCommandSource, *>,
@@ -250,7 +252,7 @@ class CommandBuilder(
      * サンプル: "foo", "foo:bar", "#foo"
      */
     fun functionOrTag(
-        child: CommandBuilder.(pair: ArgumentGetter<Pair<Identifier, Either<CommandFunction, Collection<CommandFunction>>>>) -> Unit,
+        child: CommandBuilder.(pair: ArgumentGetter<FunctionOrTagType>) -> Unit,
     ) = next(child, CommandFunctionArgumentType::commandFunction, CommandFunctionArgumentType::getFunctionOrTag)
 
     /**
