@@ -32,6 +32,6 @@ jobs:
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git remote set-url origin https://uten2c:${GITHUB_TOKEN}@github.com/repo.git
           git add .
-          git commit -m "strobo v${BRANCH}+build.${BUILD_NUMBER}"
-          git push https://$@github.com/uTen2c/repo.git
+          git commit -m "strobo v${GITHUB_BASE_REF}+build.${BUILD_NUMBER}"
+          git push https://uten2c:${GITHUB_TOKEN}@github.com/uTen2c/repo.git
         working-directory: ./repo
