@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.serialization") version "1.6.21"
     id("fabric-loom") version "0.12-SNAPSHOT"
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
+    id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
     `maven-publish`
 }
 
@@ -81,7 +81,7 @@ loom {
 }
 
 configure<KtlintExtension> {
-    version.set("0.45.1")
+    version.set("0.45.2")
     additionalEditorconfigFile.set(file(".editorconfig"))
     enableExperimentalRules.set(true)
 }
