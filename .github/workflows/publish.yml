@@ -15,8 +15,9 @@ jobs:
         with:
           token: ${{secrets.github_token}}
       - run: git clone git@github.com:uTen2c/repo.git
-        working-directory: ~/
       - run: ./gradlew build publish --stacktrace
+        env:
+          REPO_URL: "./repo"
       - uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

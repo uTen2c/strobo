@@ -123,9 +123,12 @@ publishing {
             from(components["java"])
         }
     }
-    repositories {
-        maven {
-            url = uri("${System.getProperty("user.home")}/repo")
+    val repoUrl = System.getenv()["REPO_URL"]
+    if (repoUrl != null) {
+        repositories {
+            maven {
+                url = uri(repoUrl)
+            }
         }
     }
 }
