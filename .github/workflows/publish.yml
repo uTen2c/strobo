@@ -26,4 +26,7 @@ jobs:
       - uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          destination-github-username: CI
+          source-directory: "./repo"
+          commit-message: "${{github.head_ref}}+build.${{ steps.buildnumber.outputs.build_number }}"
           branch: main
