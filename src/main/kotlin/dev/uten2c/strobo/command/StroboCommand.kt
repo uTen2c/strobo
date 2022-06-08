@@ -7,7 +7,6 @@ import dev.uten2c.strobo.util.text
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
-import net.minecraft.util.Util
 
 internal object StroboCommand {
     private const val COMMAND_RELOADED_MESSAGE = "Command reloaded."
