@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import dev.uten2c.strobo.Strobo;
 import dev.uten2c.strobo.command.vanilla.StroboGiveCommand;
 import dev.uten2c.strobo.command.vanilla.StroboSummonCommand;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.GiveCommand;
 import net.minecraft.server.command.ServerCommandSource;
@@ -25,9 +26,9 @@ public class MixinCommandManager {
     private CommandDispatcher<ServerCommandSource> dispatcher;
 
     // コマンド登録用関数の呼び出し
-    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;findAmbiguities(Lcom/mojang/brigadier/AmbiguityConsumer;)V"), remap = false)
-    private void addCommands(CommandManager.RegistrationEnvironment environment, CallbackInfo ci) {
-        dev.uten2c.strobo.command.CommandManager.registerCommand(dispatcher);
+    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;setConsumer(Lcom/mojang/brigadier/ResultConsumer;)V"), remap = false)
+    private void addCommands(CommandManager.RegistrationEnvironment environment, CommandRegistryAccess commandRegistryAccess, CallbackInfo ci) {
+        dev.uten2c.strobo.command.CommandManager.registerCommand(dispatcher, commandRegistryAccess);
     }
 
     // デバッグ出力をいつでも有効化させる
@@ -37,12 +38,12 @@ public class MixinCommandManager {
     }
 
     // バニラのgiveコマンドを置き換え
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/GiveCommand;register(Lcom/mojang/brigadier/CommandDispatcher;)V"))
-    private void replaceGiveCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
+    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/GiveCommand;register(Lcom/mojang/brigadier/CommandDispatcher;Lnet/minecraft/command/CommandRegistryAccess;)V"))
+    private void replaceGiveCommand(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess) {
         if (Strobo.options.replaceGiveCommand) {
             StroboGiveCommand.register();
         } else {
-            GiveCommand.register(dispatcher);
+            GiveCommand.register(dispatcher, commandRegistryAccess);
         }
     }
 

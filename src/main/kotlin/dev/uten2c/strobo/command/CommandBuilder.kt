@@ -18,6 +18,7 @@ import com.mojang.datafixers.util.Pair
 import dev.uten2c.strobo.command.argument.ArgumentGetter
 import dev.uten2c.strobo.command.argument.ScoreHoldersArgument
 import net.minecraft.block.pattern.CachedBlockPosition
+import net.minecraft.command.CommandRegistryAccess
 import net.minecraft.command.argument.AngleArgumentType
 import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.command.argument.BlockPredicateArgumentType
@@ -70,7 +71,6 @@ import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.function.CommandFunction
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.tag.Tag
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
@@ -85,11 +85,15 @@ import java.util.concurrent.CompletableFuture
 import java.util.function.Predicate
 import java.util.function.Supplier
 import kotlin.reflect.KClass
+import kotlin.reflect.jvm.ExperimentalReflectionOnLambdas
 import kotlin.reflect.jvm.reflect
 import com.mojang.brigadier.context.CommandContext as BrigadierCommandContext
 
 @Suppress("unused")
-class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *>) {
+class CommandBuilder(
+    private val builder: ArgumentBuilder<ServerCommandSource, *>,
+    private val commandRegistryAccess: CommandRegistryAccess,
+) {
     internal var filter: ((ServerCommandSource) -> Boolean)? = null
         private set
     internal var aliases: List<String>? = null
@@ -125,7 +129,7 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      */
     fun literal(literal: String, child: CommandBuilder.() -> Unit) {
         val arg = literal<ServerCommandSource>(literal)
-        child(CommandBuilder(arg))
+        child(CommandBuilder(arg, commandRegistryAccess))
         builder.then(arg)
     }
 
@@ -145,13 +149,17 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      * サンプル: "stone", "minecraft:stone", "stone[foo=bar]", "#stone", "#stone[foo=bar]{baz=nbt}"
      */
     fun blockPredicate(child: CommandBuilder.(blockPredicate: ArgumentGetter<Predicate<CachedBlockPosition>>) -> Unit) =
-        next(child, BlockPredicateArgumentType::blockPredicate, BlockPredicateArgumentType::getBlockPredicate)
+        next(
+            child,
+            { BlockPredicateArgumentType.blockPredicate(commandRegistryAccess) },
+            BlockPredicateArgumentType::getBlockPredicate,
+        )
 
     /**
      * サンプル: "stone", "minecraft:stone", "stone[foo=bar]", "foo{bar=baz}"
      */
     fun blockStateArg(child: CommandBuilder.(blockState: ArgumentGetter<BlockStateArgument>) -> Unit) =
-        next(child, BlockStateArgumentType::blockState, BlockStateArgumentType::getBlockState)
+        next(child, { BlockStateArgumentType.blockState(commandRegistryAccess) }, BlockStateArgumentType::getBlockState)
 
     /**
      * サンプル: "true", "false"
@@ -242,9 +250,7 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      * サンプル: "foo", "foo:bar", "#foo"
      */
     fun functionOrTag(
-        child: CommandBuilder.(
-            pair: ArgumentGetter<Pair<Identifier, Either<CommandFunction, Tag<CommandFunction>>>>,
-        ) -> Unit,
+        child: CommandBuilder.(pair: ArgumentGetter<Pair<Identifier, Either<CommandFunction, Collection<CommandFunction>>>>) -> Unit,
     ) = next(child, CommandFunctionArgumentType::commandFunction, CommandFunctionArgumentType::getFunctionOrTag)
 
     /**
@@ -284,7 +290,11 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      * サンプル: "stick", "minecraft:stick", "#stick", "#stick{foo=bar}"
      */
     fun itemPredicate(child: CommandBuilder.(itemPredicate: ArgumentGetter<Predicate<ItemStack>>) -> Unit) =
-        next(child, ItemPredicateArgumentType::itemPredicate, ItemPredicateArgumentType::getItemPredicate)
+        next(
+            child,
+            { ItemPredicateArgumentType.itemPredicate(commandRegistryAccess) },
+            ItemPredicateArgumentType::getItemStackPredicate,
+        )
 
     /**
      * サンプル: "container.5", "12", "weapon"
@@ -296,7 +306,11 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
      * サンプル: "stick", "minecraft:stick", "stick{foo=bar}"
      */
     fun itemStack(child: CommandBuilder.(itemStack: ArgumentGetter<ItemStackArgument>) -> Unit) =
-        next(child, ItemStackArgumentType::itemStack, ItemStackArgumentType::getItemStackArgument)
+        next(
+            child,
+            { ItemStackArgumentType.itemStack(commandRegistryAccess) },
+            ItemStackArgumentType::getItemStackArgument,
+        )
 
     /**
      * サンプル: "0", "123", "-123"
@@ -462,7 +476,7 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     fun <T : Enum<*>> enum(enum: KClass<T>, child: CommandBuilder.(T) -> Unit) {
         enum.java.enumConstants.forEach { item ->
             val arg = literal<ServerCommandSource>(item.name.lowercase())
-            child(CommandBuilder(arg), item)
+            child(CommandBuilder(arg, commandRegistryAccess), item)
             builder.then(arg)
         }
     }
@@ -489,7 +503,7 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
         }
     }
 
-    @Suppress("EXPERIMENTAL_API_USAGE")
+    @OptIn(ExperimentalReflectionOnLambdas::class)
     private fun <T1, T2> next(
         child: CommandBuilder.(ArgumentGetter<T1>) -> Unit,
         argumentProvider: () -> ArgumentType<T2>,
@@ -497,11 +511,11 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
     ) {
         val name = getterNameToParamName(child.reflect()?.parameters?.get(1)?.name.toString())
         val arg = RequiredArgumentBuilder.argument<ServerCommandSource, T2>(name, argumentProvider())
-        child(CommandBuilder(arg), ArgumentGetter { factory(it, name) })
+        child(CommandBuilder(arg, commandRegistryAccess), ArgumentGetter { factory(it, name) })
         builder.then(arg)
     }
 
-    @Suppress("EXPERIMENTAL_API_USAGE")
+    @OptIn(ExperimentalReflectionOnLambdas::class)
     private fun <T> nextScoreHolders(
         child: CommandBuilder.(ScoreHoldersArgument) -> Unit,
         argumentProvider: () -> ArgumentType<T>,
@@ -514,7 +528,10 @@ class CommandBuilder(private val builder: ArgumentBuilder<ServerCommandSource, *
         val getterName = child.reflect()?.parameters?.get(1)?.name.toString()
         val name = getterNameToParamName(getterName)
         val arg = RequiredArgumentBuilder.argument<ServerCommandSource, T>(name, argumentProvider())
-        child(CommandBuilder(arg), ScoreHoldersArgument { ctx, supplier -> factory(ctx, name, supplier) })
+        child(
+            CommandBuilder(arg, commandRegistryAccess),
+            ScoreHoldersArgument { ctx, supplier -> factory(ctx, name, supplier) },
+        )
         builder.then(arg)
     }
 

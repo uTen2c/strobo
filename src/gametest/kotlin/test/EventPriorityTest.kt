@@ -9,7 +9,8 @@ import test.event.TestEvent
 
 class EventPriorityTest : StroboGameTest() {
 
-    @GameTest(structureName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1)
+//    @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1)
+    @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1)
     fun priorityTest(context: TestContext) {
         var count = 0
         EventPriority.values().forEachIndexed { i, priority ->

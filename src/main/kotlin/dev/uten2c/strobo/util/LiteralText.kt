@@ -1,23 +1,24 @@
 package dev.uten2c.strobo.util
 
-import net.minecraft.text.LiteralText
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
 
 /**
- * [LiteralText]のコンストラクタのシンタックスシュガー
+ * [MutableText]のコンストラクタのシンタックスシュガー
  */
-fun text(string: String) = LiteralText(string)
+fun text(string: String): MutableText = Text.literal(string)
 
 /**
- * [LiteralText]のコンストラクタのシンタックスシュガー
+ * [MutableText]のコンストラクタのシンタックスシュガー
  */
-fun text(char: Char) = LiteralText(char.toString())
+fun text(char: Char): MutableText = Text.literal(char.toString())
 
 /**
- * [LiteralText]のコンストラクタのシンタックスシュガー
+ * [MutableText]のコンストラクタのシンタックスシュガー
  */
-fun text(number: Number) = LiteralText(number.toString())
+fun text(number: Number): MutableText = Text.literal(number.toString())
 
 /**
- * 空文字列の[LiteralText]を生成
+ * 空文字列の[MutableText]を生成
  */
-fun emptyText(): LiteralText = LiteralText("")
+fun emptyText(): MutableText = Text.literal("")

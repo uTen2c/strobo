@@ -22,7 +22,7 @@ import java.util.UUID
 
 class EventTests : StroboGameTest() {
 
-    @GameTest(structureName = EMPTY_STRUCTURE)
+    @GameTest(templateName = EMPTY_STRUCTURE)
     fun blockBreakEvent(context: TestContext) {
         val pos = BlockPos(0, 1, 0)
         val absolutePos = context.getAbsolutePos(pos)
@@ -46,7 +46,7 @@ class EventTests : StroboGameTest() {
         }
     }
 
-    @GameTest(structureName = EMPTY_STRUCTURE, tickLimit = 1)
+    @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1)
     fun entityDamageEventTest(context: TestContext) {
         val entity = context.spawnEntity(EntityType.PIG, BlockPos(0, 1, 0))
         val source = DamageSource.ANVIL
@@ -79,7 +79,7 @@ class EventTests : StroboGameTest() {
         entity.damage(source, damageAmount)
     }
 
-    @GameTest(structureName = EMPTY_STRUCTURE, tickLimit = 1)
+    @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1)
     fun entityDeathEventTest(context: TestContext) {
         val entity = context.spawnEntity(EntityType.SILVERFISH, BlockPos(0, 1, 0))
         listenEvent<EntityDeathEvent> { e ->
@@ -92,7 +92,7 @@ class EventTests : StroboGameTest() {
         entity.kill()
     }
 
-    @GameTest(structureName = EMPTY_STRUCTURE, tickLimit = 1)
+    @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1)
     fun playerAttemptPickupItemEvent(context: TestContext) {
         val mockPlayer = context.createMockServerPlayer()
         val itemEntity = context.spawnItem(
@@ -126,7 +126,7 @@ class EventTests : StroboGameTest() {
         itemEntity.onPlayerCollision(mockPlayer)
     }
 
-    @GameTest(structureName = EMPTY_STRUCTURE, tickLimit = 1)
+    @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1)
     fun playerDeathEventTest(context: TestContext) {
         val mockPlayer = context.createMockServerPlayer()
         listenEvent<PlayerDeathEvent> { e ->
@@ -139,7 +139,7 @@ class EventTests : StroboGameTest() {
         mockPlayer.kill()
     }
 
-    @GameTest(structureName = EMPTY_STRUCTURE, tickLimit = 1)
+    @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1)
     fun playerDropItemEventTest(context: TestContext) {
         val mockPlayer = context.createMockServerPlayer()
         val defaultStack = Items.DIAMOND.defaultStack.apply {
@@ -161,7 +161,7 @@ class EventTests : StroboGameTest() {
         mockPlayer.dropItem(defaultStack, false, true)
     }
 
-    @GameTest(structureName = EMPTY_STRUCTURE, tickLimit = 1)
+    @GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1)
     fun playerItemHeldEventTest(context: TestContext) {
         val mockPlayer = context.createMockServerPlayer()
         listenEvent<PlayerItemHeldEvent> { e ->

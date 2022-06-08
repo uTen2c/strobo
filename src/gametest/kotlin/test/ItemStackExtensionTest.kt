@@ -10,7 +10,7 @@ import net.minecraft.test.TestContext
 
 class ItemStackExtensionTest {
 
-    @GameTest(structureName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1)
+    @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1)
     fun customModelDataTest(context: TestContext) {
         context.addInstantFinalTask {
             val stack = Items.DIAMOND.defaultStack
@@ -25,7 +25,7 @@ class ItemStackExtensionTest {
         }
     }
 
-    @GameTest(structureName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1)
+    @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1)
     fun loreTest(context: TestContext) {
         val lore = listOf(text("test"), text("hello"))
         context.addInstantFinalTask {

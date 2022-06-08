@@ -3,8 +3,10 @@ package dev.uten2c.strobo.command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.tree.CommandNode
 import dev.uten2c.strobo.Strobo
+import net.minecraft.command.CommandRegistryAccess
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.util.registry.DynamicRegistryManager
 import org.jetbrains.annotations.ApiStatus
 
 internal object CommandManager {
@@ -22,10 +24,13 @@ internal object CommandManager {
 
     @JvmStatic
     @ApiStatus.Internal
-    fun registerCommand(dispatcher: CommandDispatcher<ServerCommandSource>) {
+    fun registerCommand(
+        dispatcher: CommandDispatcher<ServerCommandSource>,
+        commandRegistryAccess: CommandRegistryAccess,
+    ) {
         commands.forEach { (name, builder) ->
             val argumentBuilder = CommandManager.literal(name)
-            val commandBuilder = CommandBuilder(argumentBuilder)
+            val commandBuilder = CommandBuilder(argumentBuilder, commandRegistryAccess)
             builder(commandBuilder)
             val node = dispatcher.register(argumentBuilder)
             commandBuilder.aliases?.forEach { alias ->
@@ -54,7 +59,7 @@ internal object CommandManager {
             (childrenField.get(root) as MutableMap<*, *>).remove(command.name)
             (literalsField.get(root) as MutableMap<*, *>).remove(command.name)
         }
-        registerCommand(dispatcher)
+        registerCommand(dispatcher, CommandRegistryAccess(DynamicRegistryManager.BUILTIN.get()))
         sendCommandTree()
     }
 

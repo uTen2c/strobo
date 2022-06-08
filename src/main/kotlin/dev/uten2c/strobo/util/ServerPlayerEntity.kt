@@ -12,7 +12,6 @@ import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket
 import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import java.util.UUID
 
@@ -70,8 +69,8 @@ var ServerPlayerEntity.playerListFooter: Text?
  */
 fun ServerPlayerEntity.updatePlayerListHeaderAndFooter() {
     val packet = PlayerListHeaderS2CPacket(
-        playerListHeader ?: LiteralText.EMPTY,
-        playerListFooter ?: LiteralText.EMPTY,
+        playerListHeader ?: Text.empty(),
+        playerListFooter ?: Text.empty(),
     )
     networkHandler.sendPacket(packet)
 }

@@ -14,7 +14,7 @@ import java.util.UUID
 abstract class StroboGameTest : FabricGameTest {
 
     protected fun TestContext.createMockServerPlayer(): ServerPlayerEntity {
-        return object : ServerPlayerEntity(world.server, world, GameProfile(UUID.randomUUID(), "test-mock-player")) {
+        return object : ServerPlayerEntity(world.server, world, GameProfile(UUID.randomUUID(), "test-mock-player"), null) {
 
             init {
                 networkHandler = ServerPlayNetworkHandler(world.server, ClientConnection(NetworkSide.SERVERBOUND), this)

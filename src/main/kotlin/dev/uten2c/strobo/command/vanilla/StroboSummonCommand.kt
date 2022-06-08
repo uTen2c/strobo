@@ -4,7 +4,7 @@ import dev.uten2c.strobo.command.registerCommand
 import net.minecraft.entity.EntityType
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.command.SummonCommand
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
@@ -26,7 +26,7 @@ internal object StroboSummonCommand {
                         .forEach { (type, id) ->
                             builder.suggest(
                                 if (id.path == Identifier.DEFAULT_NAMESPACE) id.path else id.toString(),
-                                TranslatableText(Util.createTranslationKey("entity", EntityType.getId(type))),
+                                Text.translatable(Util.createTranslationKey("entity", EntityType.getId(type))),
                             )
                         }
                     return@suggests builder.buildFuture()

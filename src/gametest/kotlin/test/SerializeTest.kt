@@ -10,7 +10,7 @@ import net.minecraft.test.TestContext
 
 class SerializeTest {
 
-    @GameTest(structureName = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
     fun locationSerialize(context: TestContext) {
         context.addInstantFinalTask {
             val decoded = Json.decodeFromString<Location>(SERIALIZED)

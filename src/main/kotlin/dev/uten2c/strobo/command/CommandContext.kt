@@ -14,7 +14,10 @@ class CommandContext(private val context: CommandContext<ServerCommandSource>) {
 
     val source: ServerCommandSource = context.source
     val world: ServerWorld get() = source.world
-    val player: ServerPlayerEntity get() = source.player
+    val playerOrThrow: ServerPlayerEntity get() = source.playerOrThrow
+
+    @Deprecated("yarnマッピングの名前が変更された", ReplaceWith("playerOrThrow"))
+    val player: ServerPlayerEntity get() = playerOrThrow
 
     fun sendFeedback(message: Text, broadcastToOps: Boolean = false) = source.sendFeedback(message, broadcastToOps)
 

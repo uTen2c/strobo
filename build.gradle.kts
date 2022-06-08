@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "dev.uten2c"
-version = "71"
+version = "1.0.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -44,18 +44,19 @@ fun DependencyHandlerScope.includeModImplementation(dep: Any) {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.18.2")
-    mappings("net.fabricmc:yarn:1.18.2+build.2:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.13.3")
+    minecraft("com.mojang:minecraft:1.19")
+    mappings("net.fabricmc:yarn:1.19+build.1:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.14.6")
     modImplementation("net.fabricmc:fabric-language-kotlin:1.7.4+kotlin.1.6.21")
     arrayOf(
         "fabric-api-base",
         "fabric-resource-loader-v0",
         "fabric-gametest-api-v1",
         "fabric-registry-sync-v0",
-    ).forEach { includeModImplementation(fabricApi.module(it, "0.51.1+1.18.2")) }
+    ).forEach { includeModImplementation(fabricApi.module(it, "0.55.2+1.19")) }
 }
 
+@Suppress("UnstableApiUsage")
 loom {
     serverOnlyMinecraftJar()
     accessWidenerPath.set(file("src/main/resources/strobo.accesswidener"))
@@ -91,6 +92,7 @@ tasks.withType<JavaCompile> {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs = freeCompilerArgs + "-opt-in=kotlin.RequiresOptIn"
     }
 }
 

@@ -40,7 +40,7 @@ internal object StroboCommand {
             text.append(text("Strobo").color(Formatting.GOLD))
             text.append(text(" » ").color(Formatting.DARK_GRAY))
             text.append(message)
-            source.output.sendSystemMessage(text, Util.NIL_UUID)
+            source.output.sendMessage(text)
         }
     }
 }

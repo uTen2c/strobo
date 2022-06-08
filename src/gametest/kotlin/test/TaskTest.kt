@@ -7,7 +7,7 @@ import net.minecraft.test.TestContext
 
 class TaskTest : StroboGameTest() {
 
-    @GameTest(structureName = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE)
     fun timer(context: TestContext) {
         var i = 0
         val map = HashMap<Long, Int>()

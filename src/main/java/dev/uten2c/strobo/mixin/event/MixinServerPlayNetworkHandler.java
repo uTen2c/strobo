@@ -7,9 +7,9 @@ import dev.uten2c.strobo.util.ServerPlayerEntityKt;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.network.MessageType;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.listener.ServerPlayPacketListener;
+import net.minecraft.network.message.MessageType;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
@@ -19,10 +19,10 @@ import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldView;
@@ -37,7 +37,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketListener {
@@ -128,11 +127,11 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     private int strobo$allowedPlayerTicks = 1;
     private int strobo$lastTick = 0;
 
-    @Redirect(method = "onDisconnected", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Lnet/minecraft/network/MessageType;Ljava/util/UUID;)V"))
-    private void onQuit(PlayerManager playerManager, Text message, MessageType type, UUID senderUuid) {
+    @Redirect(method = "onDisconnected", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Lnet/minecraft/util/registry/RegistryKey;)V"))
+    private void onDisconnected(PlayerManager playerManager, Text message, RegistryKey<MessageType> typeKey) {
         var event = new PlayerQuitEvent(player, message);
         event.callEvent();
-        playerManager.broadcast(event.getMessage(), type, senderUuid);
+        playerManager.broadcast(event.getMessage(), typeKey);
     }
 
     // PlayerMoveEventを呼び出してる。PaperSpigotから移植
@@ -141,7 +140,7 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     public void callPlayerMoveEvent(PlayerMoveC2SPacket packet, CallbackInfo ci) {
         NetworkThreadUtils.forceMainThread(packet, this, this.player.getWorld());
         if (isMovementInvalid(packet.getX(0.0D), packet.getY(0.0D), packet.getZ(0.0D), packet.getYaw(0.0F), packet.getPitch(0.0F))) {
-            this.disconnect(new TranslatableText("multiplayer.disconnect.invalid_player_movement"));
+            this.disconnect(Text.translatable("multiplayer.disconnect.invalid_player_movement"));
         } else {
             var serverWorld = this.player.getWorld();
 
