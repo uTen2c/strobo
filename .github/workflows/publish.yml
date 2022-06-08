@@ -26,12 +26,11 @@ jobs:
           REPO_URL: ./repo
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: ${{ github.head_ref }}
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git remote set-url origin https://uten2c:${GITHUB_TOKEN}@github.com/repo.git
+          git remote set-url origin https://uten2c:${GITHUB_TOKEN}@github.com/uTen2c/repo.git
           git add .
-          git commit -m "strobo v${GITHUB_BASE_REF}+build.${BUILD_NUMBER}"
-          git push https://uten2c:${GITHUB_TOKEN}@github.com/uTen2c/repo.git
+          git commit -m "strobo v${GITHUB_HEAD_REF}+build.${BUILD_NUMBER}"
+          git push origin
         working-directory: ./repo
