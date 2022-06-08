@@ -16,17 +16,20 @@ jobs:
           path: "./repo"
       - uses: gradle/wrapper-validation-action@v1
       - name: Generate build number
+        id: buildnumber
         uses: einaregilsson/build-number@v3
         with:
-          token: ${{secrets.github_token}}
+          token: ${{ secrets.github_token }}
       - run: chmod +x ./gradlew
       - run: ./gradlew build publish --stacktrace
         env:
           REPO_URL: "./repo"
-      - uses: ad-m/github-push-action@master
+      - uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.github_token }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           destination-github-username: CI
           source-directory: "./repo"
-          commit-message: "${{github.head_ref}}+build.${{ steps.buildnumber.outputs.build_number }}"
-          branch: main
+          commit-message: "${{ github.head_ref }}+build.${{ steps.buildnumber.outputs.build_number }}"
+          target-branch: main
