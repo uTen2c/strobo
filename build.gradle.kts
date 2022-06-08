@@ -123,16 +123,57 @@ publishing {
             from(components["java"])
         }
     }
-    val repoUrl = System.getenv()["REPO_URL"]
-    if (repoUrl != null) {
-        repositories {
-            maven {
-                url = uri(repoUrl)
-            }
+    repositories {
+        maven {
+            url = uri(file("${project.buildDir}/repo"))
         }
     }
 }
 
 tasks.withType<Test> {
     dependsOn(tasks.getByName("runAutoGameTest"))
+}
+
+val repoDir = "${project.buildDir}/repo"
+val githubToken = System.getenv()["GITHUB_TOKEN"]
+val repo = System.getenv()["REPO"]
+
+tasks.create("cloneRepo") {
+    doLast {
+        delete(file(repoDir))
+        exec {
+            executable("git")
+            args("clone", "https://github.com/$repo.git", repoDir)
+        }
+    }
+}
+
+tasks.create("pushRepo") {
+    doLast {
+        exec {
+            executable("git")
+            args(
+                "remote",
+                "set-url",
+                "origin",
+                "https://uten2c:$githubToken@github.com/$repo.git",
+            )
+            workingDir(repoDir)
+        }
+        exec {
+            executable("git")
+            args("add", "-A")
+            workingDir(repoDir)
+        }
+        exec {
+            executable("git")
+            args("commit", "-m", "\"${project.name} v${project.version}\"")
+            workingDir(repoDir)
+        }
+        exec {
+            executable("git")
+            args("push", "origin")
+            workingDir(repoDir)
+        }
+    }
 }
