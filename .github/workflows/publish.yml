@@ -28,7 +28,6 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.github_token }}
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           destination-github-username: CI
           source-directory: "./repo"
           commit-message: "${{ github.head_ref }}+build.${{ steps.buildnumber.outputs.build_number }}"
