@@ -67,7 +67,6 @@ dependencies {
 
 @Suppress("UnstableApiUsage")
 loom {
-    serverOnlyMinecraftJar()
     accessWidenerPath.set(file("src/main/resources/strobo.accesswidener"))
     runtimeOnlyLog4j.set(true)
     runs {
@@ -125,7 +124,7 @@ publishing {
     }
     repositories {
         maven {
-            url = uri(file("${project.buildDir}/repo"))
+            url = uri("${project.buildDir}/repo")
         }
     }
 }
@@ -135,15 +134,27 @@ tasks.withType<Test> {
 }
 
 val repoDir = "${project.buildDir}/repo"
-val githubToken = System.getenv()["GITHUB_TOKEN"]
+val githubToken = System.getenv()["TOKEN"]
 val repo = System.getenv()["REPO"]
+val user = System.getenv()["GIT_USER"]
+val email = System.getenv()["GIT_EMAIL"]
 
 tasks.create("cloneRepo") {
     doLast {
         delete(file(repoDir))
-        exec {
-            executable("git")
-            args("clone", "https://github.com/$repo.git", repoDir)
+        if (repo != null) {
+            exec {
+                executable("git")
+                args("config", "--global", "user.name", user)
+            }
+            exec {
+                executable("git")
+                args("config", "--global", "user.email", email)
+            }
+            exec {
+                executable("git")
+                args("clone", "https://github.com/$repo.git", repoDir)
+            }
         }
     }
 }
@@ -152,17 +163,7 @@ tasks.create("pushRepo") {
     doLast {
         exec {
             executable("git")
-            args(
-                "remote",
-                "set-url",
-                "origin",
-                "https://uten2c:$githubToken@github.com/$repo.git",
-            )
-            workingDir(repoDir)
-        }
-        exec {
-            executable("git")
-            args("add", "-A")
+            args("add", ".")
             workingDir(repoDir)
         }
         exec {
@@ -172,7 +173,7 @@ tasks.create("pushRepo") {
         }
         exec {
             executable("git")
-            args("push", "origin")
+            args("push", "$githubToken@github.com/$repo.git")
             workingDir(repoDir)
         }
     }
