@@ -163,6 +163,16 @@ tasks.create("pushRepo") {
     doLast {
         exec {
             executable("git")
+            args(
+                "remote",
+                "set-url",
+                "origin",
+                "https://uten2c:$githubToken@github.com/$repo.git",
+            )
+            workingDir(repoDir)
+        }
+        exec {
+            executable("git")
             args("add", ".")
             workingDir(repoDir)
         }
@@ -173,7 +183,7 @@ tasks.create("pushRepo") {
         }
         exec {
             executable("git")
-            args("push", "$githubToken@github.com/$repo.git")
+            args("push", "origin", "main")
             workingDir(repoDir)
         }
     }
