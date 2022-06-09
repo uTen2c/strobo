@@ -26,7 +26,7 @@ jobs:
           ./gradlew publish --stacktrace
           ./gradlew pushRepo --stacktrace
         env:
-          REPO: uten2c/test-repo
+          REPO: uten2c/repo
           TOKEN: ${{ secrets.TOKEN }}
           GIT_USER: uTen2c
           GIT_EMAIL: uten2c@gmail.com

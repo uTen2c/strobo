@@ -178,7 +178,7 @@ tasks.create("pushRepo") {
         }
         exec {
             executable("git")
-            args("commit", "-m", "\"${project.name} v${project.version}\"")
+            args("commit", "-m", "${project.name} v${project.version}")
             workingDir(repoDir)
         }
         exec {
