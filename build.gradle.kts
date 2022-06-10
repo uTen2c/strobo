@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
-    kotlin("jvm") version "1.6.21"
-    kotlin("plugin.serialization") version "1.6.21"
+    kotlin("jvm") version "1.7.0"
+    kotlin("plugin.serialization") version "1.7.0"
     id("fabric-loom") version "0.12-SNAPSHOT"
     id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
     `maven-publish`
@@ -57,7 +57,7 @@ dependencies {
     minecraft("com.mojang:minecraft:1.19")
     mappings("net.fabricmc:yarn:1.19+build.1:v2")
     modImplementation("net.fabricmc:fabric-loader:0.14.6")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.7.4+kotlin.1.6.21")
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.8.0+kotlin.1.7.0")
     arrayOf(
         "fabric-api-base",
         "fabric-resource-loader-v0",
