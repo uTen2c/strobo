@@ -11,6 +11,7 @@ plugins {
 
 val minecraftVersion = "1.19"
 val buildNumber = System.getenv()["BUILD_NUMBER"] ?: "local"
+val publishPath = System.getenv()["PUBLISH_PATH"]
 
 group = "dev.uten2c"
 version = "$minecraftVersion+build.$buildNumber"
@@ -122,69 +123,15 @@ publishing {
             from(components["java"])
         }
     }
-    repositories {
-        maven {
-            url = uri("${project.buildDir}/repo")
+    if (publishPath != null) {
+        repositories {
+            maven {
+                url = uri(publishPath)
+            }
         }
     }
 }
 
 tasks.withType<Test> {
     dependsOn(tasks.getByName("runAutoGameTest"))
-}
-
-val repoDir = "${project.buildDir}/repo"
-val githubToken = System.getenv()["TOKEN"]
-val repo = System.getenv()["REPO"]
-val user = System.getenv()["GIT_USER"]
-val email = System.getenv()["GIT_EMAIL"]
-
-tasks.create("cloneRepo") {
-    doLast {
-        delete(file(repoDir))
-        if (repo != null) {
-            exec {
-                executable("git")
-                args("config", "--global", "user.name", user)
-            }
-            exec {
-                executable("git")
-                args("config", "--global", "user.email", email)
-            }
-            exec {
-                executable("git")
-                args("clone", "https://github.com/$repo.git", repoDir)
-            }
-        }
-    }
-}
-
-tasks.create("pushRepo") {
-    doLast {
-        exec {
-            executable("git")
-            args(
-                "remote",
-                "set-url",
-                "origin",
-                "https://uten2c:$githubToken@github.com/$repo.git",
-            )
-            workingDir(repoDir)
-        }
-        exec {
-            executable("git")
-            args("add", ".")
-            workingDir(repoDir)
-        }
-        exec {
-            executable("git")
-            args("commit", "-m", "${project.name} v${project.version}")
-            workingDir(repoDir)
-        }
-        exec {
-            executable("git")
-            args("push", "origin", "main")
-            workingDir(repoDir)
-        }
-    }
 }

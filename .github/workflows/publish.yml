@@ -1,7 +1,6 @@
 name: Publish
 on: [ push ]
 concurrency: ci-${{ github.ref }}
-permissions: write-all
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -19,15 +18,9 @@ jobs:
         with:
           token: ${{ secrets.github_token }}
           prefix: ${{ github.ref }}
-      - uses: gradle/wrapper-validation-action@v1
-      - run: chmod +x ./gradlew
       - name: Publish
-        run: |
-          ./gradlew cloneRepo --stacktrace
-          ./gradlew publish --stacktrace
-          ./gradlew pushRepo --stacktrace
-        env:
-          REPO: uten2c/repo
-          TOKEN: ${{ secrets.TOKEN }}
-          GIT_USER: uTen2c
-          GIT_EMAIL: uten2c@gmail.com
+        uses: uTen2c/publish-to-github@v1
+        with:
+          repo: ${{ secrets.REPO }}
+          token-user: ${{ secrets.TOKEN_USER }}
+          token: ${{ secrets.TOKEN }}
