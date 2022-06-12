@@ -404,13 +404,13 @@ class CommandBuilder(
      * サンプル: "Player", "0123", "*", "@e"
      */
     fun scoreHolders(child: CommandBuilder.(scoreHolders: ScoreHoldersArgument) -> Unit) =
-        nextScoreHolders(child, ScoreHolderArgumentType::scoreHolder, ScoreHolderArgumentType::getScoreHolders)
+        nextScoreHolders(child, ScoreHolderArgumentType::scoreHolders, ScoreHolderArgumentType::getScoreHolders)
 
     /**
      * サンプル: "Player", "0123", "*", "@e"
      */
     fun scoreboardScoreHolders(child: CommandBuilder.(scoreHolders: ArgumentGetter<Collection<String>>) -> Unit) =
-        next(child, ScoreHolderArgumentType::scoreHolder, ScoreHolderArgumentType::getScoreboardScoreHolders)
+        next(child, ScoreHolderArgumentType::scoreHolders, ScoreHolderArgumentType::getScoreboardScoreHolders)
 
     /**
      * サンプル: "sidebar", "foo.bar"
