@@ -9,7 +9,6 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.listener.ServerPlayPacketListener;
-import net.minecraft.network.message.MessageType;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
@@ -22,7 +21,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldView;
@@ -127,11 +125,11 @@ public abstract class MixinServerPlayNetworkHandler implements ServerPlayPacketL
     private int strobo$allowedPlayerTicks = 1;
     private int strobo$lastTick = 0;
 
-    @Redirect(method = "onDisconnected", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Lnet/minecraft/util/registry/RegistryKey;)V"))
-    private void onDisconnected(PlayerManager playerManager, Text message, RegistryKey<MessageType> typeKey) {
+    @Redirect(method = "onDisconnected", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerManager;broadcast(Lnet/minecraft/text/Text;Z)V"))
+    private void onDisconnected(PlayerManager instance, Text message, boolean overlay) {
         var event = new PlayerQuitEvent(player, message);
         event.callEvent();
-        playerManager.broadcast(event.getMessage(), typeKey);
+        instance.broadcast(event.getMessage(), overlay);
     }
 
     // PlayerMoveEventを呼び出してる。PaperSpigotから移植

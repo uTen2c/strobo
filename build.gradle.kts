@@ -2,14 +2,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
-    kotlin("jvm") version "1.7.0"
-    kotlin("plugin.serialization") version "1.7.0"
+    kotlin("jvm") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.10"
     id("fabric-loom") version "0.12-SNAPSHOT"
     id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
     `maven-publish`
 }
 
-val minecraftVersion = "1.19"
+val minecraftVersion = "1.19.1"
 val buildNumber = System.getenv()["BUILD_NUMBER"] ?: "local"
 val publishPath = System.getenv()["PUBLISH_PATH"]
 
@@ -54,19 +54,18 @@ fun DependencyHandlerScope.includeModImplementation(dep: Any) {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.19")
-    mappings("net.fabricmc:yarn:1.19+build.1:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.14.6")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.8.0+kotlin.1.7.0")
+    minecraft("com.mojang:minecraft:1.19.1")
+    mappings("net.fabricmc:yarn:1.19.1+build.4:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.14.8")
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.8.2+kotlin.1.7.10")
     arrayOf(
         "fabric-api-base",
         "fabric-resource-loader-v0",
         "fabric-gametest-api-v1",
         "fabric-registry-sync-v0",
-    ).forEach { includeModImplementation(fabricApi.module(it, "0.55.2+1.19")) }
+    ).forEach { includeModImplementation(fabricApi.module(it, "0.58.5+1.19.1")) }
 }
 
-@Suppress("UnstableApiUsage")
 loom {
     accessWidenerPath.set(file("src/main/resources/strobo.accesswidener"))
     runtimeOnlyLog4j.set(true)
