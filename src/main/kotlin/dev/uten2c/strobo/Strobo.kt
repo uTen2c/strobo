@@ -4,6 +4,7 @@ import dev.uten2c.strobo.command.StroboCommand
 import dev.uten2c.strobo.event.Event
 import dev.uten2c.strobo.event.EventListener
 import dev.uten2c.strobo.option.StroboOptions
+import dev.uten2c.strobo.serversideitem.ServerSideItemConverter
 import dev.uten2c.strobo.task.TaskRunner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,7 @@ object Strobo : ModInitializer {
 
     override fun onInitialize() {
         GlobalListeners.setup()
+        ServerSideItemConverter.setup()
         TaskRunner.setup()
         StroboCommand.register()
     }

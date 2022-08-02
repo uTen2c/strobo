@@ -2,6 +2,7 @@ package dev.uten2c.strobo.mixin.serversideitem;
 
 import dev.uten2c.strobo.serversideitem.RenderType;
 import dev.uten2c.strobo.serversideitem.ServerSideItem;
+import dev.uten2c.strobo.serversideitem.ServerSideItemConverter;
 import dev.uten2c.strobo.util.UuidHolder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -18,7 +19,11 @@ public abstract class MixinPacketByteBuf implements UuidHolder {
         if (item instanceof ServerSideItem serverSideItem) {
             var player = getPlayerOrNull();
             if (player != null) {
-                return serverSideItem.createVisualStack(stack, player, RenderType.INVENTORY);
+                if (player.interactionManager.getGameMode().isCreative()) {
+                    return ServerSideItemConverter.createCreativeVisualStack(serverSideItem, stack, player, RenderType.INVENTORY);
+                } else {
+                    return serverSideItem.createVisualStack(stack, player, RenderType.INVENTORY);
+                }
             }
         }
         return stack;
