@@ -12,6 +12,6 @@ import net.minecraft.world.GameMode
  */
 class PlayerGameModeChangedEvent(
     val player: ServerPlayerEntity,
-    val previousGameMode: GameMode,
+    val previousGameMode: GameMode?,
     val newGameMode: GameMode,
 ) : Event()
