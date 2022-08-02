@@ -1,6 +1,7 @@
 package dev.uten2c.strobo.mixin.event;
 
 import dev.uten2c.strobo.event.block.BlockBreakEvent;
+import dev.uten2c.strobo.event.player.PlayerGameModeChangedEvent;
 import net.minecraft.block.Blocks;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -8,11 +9,13 @@ import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.GameMode;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayerInteractionManager.class)
@@ -24,9 +27,6 @@ public abstract class MixinServerPlayerInteractionManager {
     @Shadow
     @Final
     protected ServerPlayerEntity player;
-
-    @Shadow
-    public abstract boolean isCreative();
 
     // BlockBreakEventを呼び出してる
     @Inject(method = "tryBreakBlock", at = @At("HEAD"), cancellable = true)
@@ -59,5 +59,11 @@ public abstract class MixinServerPlayerInteractionManager {
             }
             cir.setReturnValue(false);
         }
+    }
+
+    // PlayerGameModeChangedEventを呼び出してる
+    @Inject(method = "setGameMode", at = @At("TAIL"))
+    private void callPlayerGameModeChangeEvent(GameMode gameMode, GameMode previousGameMode, CallbackInfo ci) {
+        new PlayerGameModeChangedEvent(player, previousGameMode, gameMode).callEvent();
     }
 }
