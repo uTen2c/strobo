@@ -3,7 +3,6 @@ package dev.uten2c.strobo.mixin.serversideitem;
 import dev.uten2c.strobo.serversideitem.RenderType;
 import dev.uten2c.strobo.serversideitem.ServerSideItem;
 import dev.uten2c.strobo.util.UuidHolder;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -34,8 +33,7 @@ public class MixinEntityTrackerUpdateS2CPacket {
                 if (item instanceof ServerSideItem serverSideItem) {
                     var player = ((UuidHolder) packetByteBuf).getPlayerOrNull();
                     if (player != null) {
-                        var entity = player.getWorld().getEntityById(id);
-                        var renderType = entity instanceof ItemEntity ? RenderType.ITEM_ENTITY : RenderType.THIRD_PERSON;
+                        var renderType = new RenderType.WithEntity(id);
                         stack = serverSideItem.createVisualStack(stack, player, renderType);
                         stack.removeCustomName();
                     }

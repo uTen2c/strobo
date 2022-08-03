@@ -54,8 +54,7 @@ internal object ServerSideItemConverter {
         return copy
     }
 
-    @JvmStatic
-    fun createCreativeVisualStack(
+    private fun createCreativeVisualStack(
         item: ServerSideItem,
         original: ItemStack,
         player: ServerPlayerEntity,
@@ -69,6 +68,19 @@ internal object ServerSideItemConverter {
             nbt.putString(INTERNAL_NBT_KEY, nbtString)
         }
         return visualStack
+    }
+
+    @JvmStatic
+    fun createPacketStack(player: ServerPlayerEntity?, original: ItemStack, renderType: RenderType): ItemStack {
+        val item = original.item
+        if (item is ServerSideItem && player != null) {
+            return if (renderType == RenderType.Inventory && player.interactionManager.isCreative) {
+                createCreativeVisualStack(item, original, player, renderType)
+            } else {
+                item.createVisualStack(original, player, renderType)
+            }
+        }
+        return original
     }
 
     private fun encodeNbt(nbt: NbtCompound): String {

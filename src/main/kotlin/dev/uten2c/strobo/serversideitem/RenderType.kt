@@ -1,7 +1,6 @@
 package dev.uten2c.strobo.serversideitem
 
-enum class RenderType {
-    INVENTORY,
-    THIRD_PERSON,
-    ITEM_ENTITY,
+sealed class RenderType {
+    object Inventory : RenderType()
+    class WithEntity(val entityId: Int) : RenderType()
 }

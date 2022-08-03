@@ -27,6 +27,7 @@
     "packet.MixinS2CPackets",
     "playerlist.MixinServerPlayerEntity",
     "screen.MixinServerPlayerEntity",
+    "serversideitem.MixinEntityEquipmentUpdateS2CPacket",
     "serversideitem.MixinEntityTrackerUpdateS2CPacket",
     "serversideitem.MixinPacketByteBuf",
     "serversideitem.MixinServerPlayNetworkHandler"
