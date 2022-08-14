@@ -10,7 +10,7 @@ plugins {
 }
 
 val minecraftVersion = "1.19.2"
-val buildNumber = System.getenv()["BUILD_NUMBER"] ?: "local"
+val buildNumber = System.getenv()["BUILD_NUMBER"] ?: "local-SNAPSHOT"
 val publishPath = System.getenv()["PUBLISH_PATH"]
 
 group = "dev.uten2c"
