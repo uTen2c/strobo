@@ -9,7 +9,7 @@ plugins {
     `maven-publish`
 }
 
-val minecraftVersion = "1.19.1"
+val minecraftVersion = "1.19.2"
 val buildNumber = System.getenv()["BUILD_NUMBER"] ?: "local"
 val publishPath = System.getenv()["PUBLISH_PATH"]
 
@@ -54,16 +54,16 @@ fun DependencyHandlerScope.includeModImplementation(dep: Any) {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.19.1")
-    mappings("net.fabricmc:yarn:1.19.1+build.4:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.14.8")
+    minecraft("com.mojang:minecraft:1.19.2")
+    mappings("net.fabricmc:yarn:1.19.2+build.4:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.14.9")
     modImplementation("net.fabricmc:fabric-language-kotlin:1.8.2+kotlin.1.7.10")
     arrayOf(
         "fabric-api-base",
         "fabric-resource-loader-v0",
         "fabric-gametest-api-v1",
         "fabric-registry-sync-v0",
-    ).forEach { includeModImplementation(fabricApi.module(it, "0.58.5+1.19.1")) }
+    ).forEach { includeModImplementation(fabricApi.module(it, "0.59.0+1.19.2")) }
 }
 
 loom {
