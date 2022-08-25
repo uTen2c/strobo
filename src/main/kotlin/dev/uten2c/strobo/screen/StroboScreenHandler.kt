@@ -257,10 +257,11 @@ abstract class StroboScreenHandler(type: ScreenHandlerType<*>, syncId: Int) : Sc
          * 黒いステンドグラスパネルでCustomModelDataは1
          * リソースパックでこのアイテムを透明にする必要がある
          */
-        val disabledSlotStack = ItemStack(Items.BLACK_STAINED_GLASS_PANE).apply {
-            setCustomName(text(""))
-            customModelData = 1
-        }
+        val disabledSlotStack
+            get() = ItemStack(Items.BLACK_STAINED_GLASS_PANE).apply {
+                setCustomName(text(""))
+                customModelData = 1
+            }
 
         private fun getTypeByRows(rows: Int): ScreenHandlerType<*> = typeMap.getOrDefault(
             rows,
