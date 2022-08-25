@@ -13,6 +13,9 @@ import net.minecraft.util.Identifier
 
 private val toastId = Identifier("strobo", "toast")
 
+/**
+ * プレイヤーにトーストを送信します
+ */
 fun ServerPlayerEntity.sendToast(toast: Toast) {
     val display = AdvancementDisplay(
         toast.icon,

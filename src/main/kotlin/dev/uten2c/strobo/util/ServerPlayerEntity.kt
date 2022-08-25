@@ -140,6 +140,7 @@ fun ServerPlayerEntity.bukkitTp(location: Location): Boolean {
     return true
 }
 
+@Deprecated("完全でない実装")
 fun ServerPlayerEntity.showPlayer(player: ServerPlayerEntity) {
     if (this == player) {
         return
@@ -161,6 +162,7 @@ fun ServerPlayerEntity.showPlayer(player: ServerPlayerEntity) {
     }
 }
 
+@Deprecated("完全でない実装")
 fun ServerPlayerEntity.hidePlayer(player: ServerPlayerEntity) {
     if (this == player) {
         return
@@ -172,5 +174,6 @@ fun ServerPlayerEntity.hidePlayer(player: ServerPlayerEntity) {
     networkHandler.sendPacket(packet)
 }
 
+@Deprecated("完全でない実装")
 fun ServerPlayerEntity.isHidden(player: ServerPlayerEntity): Boolean =
     hiddenPlayerMap[uuid]?.contains(player.uuid) ?: false

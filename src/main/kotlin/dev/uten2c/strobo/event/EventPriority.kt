@@ -2,8 +2,8 @@ package dev.uten2c.strobo.event
 
 /**
  * イベントの優先度
- * LOWESTからMONITORの順に呼び出される。
- * MONITORは基本デバッグ用のつもりなので一番優先度高くしたい場合はHIGHESTを使うこと。
+ * [LOWEST]から[MONITOR]の順に呼び出される。
+ * [MONITOR]は基本デバッグ用のつもりなので一番優先度高くしたい場合は[HIGHEST]を使うこと。
  */
 enum class EventPriority {
     LOWEST,
