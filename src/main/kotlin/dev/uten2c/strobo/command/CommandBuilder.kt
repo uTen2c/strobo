@@ -19,6 +19,7 @@ import dev.uten2c.strobo.command.argument.ArgumentGetter
 import dev.uten2c.strobo.command.argument.ScoreHoldersArgument
 import net.minecraft.block.pattern.CachedBlockPosition
 import net.minecraft.command.CommandRegistryAccess
+import net.minecraft.command.CommandSource
 import net.minecraft.command.argument.AngleArgumentType
 import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.command.argument.BlockPredicateArgumentType
@@ -503,6 +504,10 @@ class CommandBuilder(
                 )
             }
         }
+    }
+
+    fun suggests(collection: Collection<String>) {
+        suggests { _, builder -> CommandSource.suggestMatching(collection, builder) }
     }
 
     @OptIn(ExperimentalReflectionOnLambdas::class)
