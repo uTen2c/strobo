@@ -22,12 +22,14 @@ internal object StroboCommand {
                     Strobo.logger.info(COMMAND_RELOADED_MESSAGE)
                 }
             }
-            literal("version") {
-                executes {
-                    val text = emptyText()
-                        .append("v")
-                        .append(text(version).color(Formatting.GOLD))
-                    sendStroboMessage(text)
+            if (Strobo.options.enableVersionCommand) {
+                literal("version") {
+                    executes {
+                        val text = emptyText()
+                            .append("v")
+                            .append(text(version).color(Formatting.GOLD))
+                        sendStroboMessage(text)
+                    }
                 }
             }
         }
