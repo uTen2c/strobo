@@ -1,6 +1,7 @@
 package test
 
 import dev.uten2c.strobo.util.customModelData
+import dev.uten2c.strobo.util.customName
 import dev.uten2c.strobo.util.lore
 import dev.uten2c.strobo.util.text
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest
@@ -37,6 +38,25 @@ class ItemStackExtensionTest {
             stack.lore = null
             if (stack.lore == null) {
                 context.throwGameTestException("loreがnullじゃない")
+            }
+        }
+    }
+
+    @GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 1)
+    fun customNameTest(context: TestContext) {
+        context.addInstantFinalTask {
+            val stack = Items.DIAMOND.defaultStack
+            if (stack.customName != null) {
+                context.throwGameTestException("customNameがnullじゃない")
+            }
+            val testName = text("test")
+            stack.customName = testName
+            if (stack.customName != testName) {
+                context.throwGameTestException("customNameがうまく設定されてない。stack: ${stack.customName}, text: $testName")
+            }
+            stack.customName = null
+            if (stack.customName != null) {
+                context.throwGameTestException("customNameにnullを入れられてない")
             }
         }
     }

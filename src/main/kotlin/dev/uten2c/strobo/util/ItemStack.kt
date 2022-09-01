@@ -15,6 +15,15 @@ var ItemStack.customModelData: Int?
     }
 
 /**
+ * [ItemStack]のCustomNameを扱う
+ */
+var ItemStack.customName: Text?
+    get() = getSubNbt("display")?.getString("Name")?.let { Text.Serializer.fromJson(it) }
+    set(value) {
+        setCustomName(value)
+    }
+
+/**
  * [ItemStack]の説明欄を扱う
  */
 var ItemStack.lore: List<Text>?
