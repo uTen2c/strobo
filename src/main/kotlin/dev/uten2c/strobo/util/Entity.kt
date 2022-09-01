@@ -14,7 +14,7 @@ import net.minecraft.util.math.Vec3d
  * エンティティの見ている向きのベクトルを取得
  */
 val Entity.direction: Vec3d
-    get() = getRotationVec(1f)
+    get() = location.direction
 
 /**
  * エンティティの座標系を取得

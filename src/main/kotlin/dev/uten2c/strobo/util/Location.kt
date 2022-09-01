@@ -2,6 +2,7 @@ package dev.uten2c.strobo.util
 
 import dev.uten2c.strobo.serialize.LocationSerializer
 import kotlinx.serialization.Serializable
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 
 /**
@@ -35,6 +36,19 @@ class Location(x: Double, y: Double, z: Double, @JvmField val yaw: Float, @JvmFi
     fun set(yaw: Float, pitch: Float): Location = Location(x, y, z, yaw, pitch)
 
     fun clone(): Location = Location(x, y, z, yaw, pitch)
+
+    /**
+     * 向いている方向のベクトル
+     */
+    val direction: Vec3d by lazy {
+        val pitchRad = pitch * MathHelper.RADIANS_PER_DEGREE
+        val yawRad = -yaw * MathHelper.RADIANS_PER_DEGREE
+        val yawCos = MathHelper.cos(yawRad)
+        val yawSin = MathHelper.sin(yawRad)
+        val pitchCos = MathHelper.cos(pitchRad)
+        val pitchSin = MathHelper.sin(pitchRad)
+        Vec3d((yawSin * pitchCos).toDouble(), -pitchSin.toDouble(), (yawCos * pitchCos).toDouble())
+    }
 
     override fun equals(other: Any?): Boolean = when {
         this === other -> true
