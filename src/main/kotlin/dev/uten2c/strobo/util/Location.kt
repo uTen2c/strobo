@@ -10,9 +10,6 @@ import net.minecraft.util.math.Vec3d
  */
 @Serializable(with = LocationSerializer::class)
 class Location(x: Double, y: Double, z: Double, @JvmField val yaw: Float, @JvmField val pitch: Float) : Vec3d(x, y, z) {
-
-    val vec = Vec3d(x, y, z)
-
     fun setX(x: Double): Location = Location(x, y, z, yaw, pitch)
 
     fun setY(y: Double): Location = Location(x, y, z, yaw, pitch)
