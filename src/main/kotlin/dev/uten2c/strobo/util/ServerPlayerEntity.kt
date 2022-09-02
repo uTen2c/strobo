@@ -1,7 +1,11 @@
 package dev.uten2c.strobo.util
 
+import dev.uten2c.strobo.screen.TitledScreenHandler
 import dev.uten2c.strobo.task.waitAndRun
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.network.packet.s2c.play.ClearTitleS2CPacket
+import net.minecraft.network.packet.s2c.play.CloseScreenS2CPacket
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket
@@ -11,8 +15,12 @@ import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket
 import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket
 import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket
+import net.minecraft.screen.NamedScreenHandlerFactory
+import net.minecraft.screen.ScreenHandler
+import net.minecraft.screen.SimpleNamedScreenHandlerFactory
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
+import java.util.OptionalInt
 import java.util.UUID
 
 private val hiddenPlayerMap = HashMap<UUID, HashSet<UUID>>()
@@ -177,3 +185,64 @@ fun ServerPlayerEntity.hidePlayer(player: ServerPlayerEntity) {
 @Deprecated("完全でない実装")
 fun ServerPlayerEntity.isHidden(player: ServerPlayerEntity): Boolean =
     hiddenPlayerMap[uuid]?.contains(player.uuid) ?: false
+
+/**
+ * [ServerPlayerEntity.openHandledScreen]のシンタックスシュガー
+ */
+fun ServerPlayerEntity.openHandledScreen(
+    title: Text,
+    factory: (syncId: Int, inv: PlayerInventory) -> ScreenHandler,
+): Int? {
+    val handlerFactory = SimpleNamedScreenHandlerFactory({ syncId, inv, _ -> factory(syncId, inv) }, title)
+    val result = openHandledScreen(handlerFactory)
+    return result.intOrNull
+}
+
+/**
+ * クライアントに[CloseScreenS2CPacket]パケットを送らずにScreenHandlerを開く。<br/>
+ * これによりマウスカーソルの位置を保持したまま画面を遷移させることができる。
+ */
+fun ServerPlayerEntity.openHandledScreenWithoutClosePacket(factory: NamedScreenHandlerFactory): Int? {
+    val result = (this as IServerPlayerEntity).openHandledScreenWithoutClosePacket(factory)
+    return result.intOrNull
+}
+
+/**
+ * [openHandledScreenWithoutClosePacket]のシンタックスシュガー
+ */
+fun ServerPlayerEntity.openHandledScreenWithoutClosePacket(
+    title: Text,
+    factory: (syncId: Int, inv: PlayerInventory) -> ScreenHandler,
+): Int? {
+    val handlerFactory = SimpleNamedScreenHandlerFactory({ syncId, inv, _ -> factory(syncId, inv) }, title)
+    return openHandledScreenWithoutClosePacket(handlerFactory)
+}
+
+/**
+ * [TitledScreenHandler]を開く
+ */
+fun ServerPlayerEntity.openTitledScreen(
+    factory: (syncId: Int, playerInventory: PlayerInventory) -> TitledScreenHandler,
+): Int? {
+    val handlerFactory = object : NamedScreenHandlerFactory {
+        private lateinit var title: Text
+
+        override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
+            val screenHandler = factory(syncId, inv)
+            this.title = screenHandler.title
+            return screenHandler
+        }
+
+        override fun getDisplayName(): Text {
+            return title
+        }
+    }
+    return if (currentScreenHandler != playerScreenHandler) {
+        openHandledScreenWithoutClosePacket(handlerFactory)
+    } else {
+        openHandledScreen(handlerFactory).intOrNull
+    }
+}
+
+private val OptionalInt.intOrNull: Int?
+    get() = if (isPresent) asInt else null
