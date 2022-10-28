@@ -2,9 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
-    kotlin("jvm") version "1.7.10"
-    kotlin("plugin.serialization") version "1.7.10"
-    id("fabric-loom") version "0.12-SNAPSHOT"
+    kotlin("jvm") version "1.7.20"
+    kotlin("plugin.serialization") version "1.7.20"
+    id("fabric-loom") version "1.0-SNAPSHOT"
     id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
     `maven-publish`
 }
@@ -56,14 +56,14 @@ fun DependencyHandlerScope.includeModImplementation(dep: Any) {
 dependencies {
     minecraft("com.mojang:minecraft:1.19.2")
     mappings("net.fabricmc:yarn:1.19.2+build.4:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.14.9")
-    modImplementation("net.fabricmc:fabric-language-kotlin:1.8.2+kotlin.1.7.10")
+    modImplementation("net.fabricmc:fabric-loader:0.14.10")
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.8.5+kotlin.1.7.20")
     arrayOf(
         "fabric-api-base",
         "fabric-resource-loader-v0",
         "fabric-gametest-api-v1",
         "fabric-registry-sync-v0",
-    ).forEach { includeModImplementation(fabricApi.module(it, "0.59.0+1.19.2")) }
+    ).forEach { includeModImplementation(fabricApi.module(it, "0.64.0+1.19.2")) }
 }
 
 loom {
