@@ -1,10 +1,11 @@
 package dev.uten2c.strobo.util;
 
-import dev.uten2c.strobo.Strobo;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+
+import static dev.uten2c.strobo.VariabelsKt.server;
 
 public interface UuidHolder {
     @Nullable UUID getUuid();
@@ -12,6 +13,6 @@ public interface UuidHolder {
     void setUuid(@Nullable UUID uuid);
 
     default @Nullable ServerPlayerEntity getPlayerOrNull() {
-        return Strobo.server.getPlayerManager().getPlayer(getUuid());
+        return server.getPlayerManager().getPlayer(getUuid());
     }
 }

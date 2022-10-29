@@ -2,7 +2,7 @@ package dev.uten2c.strobo.command
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.tree.CommandNode
-import dev.uten2c.strobo.Strobo
+import dev.uten2c.strobo.server
 import net.minecraft.command.CommandRegistryAccess
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
@@ -52,7 +52,7 @@ internal object CommandManager {
     }
 
     internal fun reloadCommands() {
-        val commandManager = Strobo.server.commandManager
+        val commandManager = server.commandManager
         val dispatcher = commandManager.dispatcher
         commands.forEach { command ->
             val root = dispatcher.root
@@ -64,6 +64,6 @@ internal object CommandManager {
     }
 
     private fun sendCommandTree() {
-        Strobo.server.playerManager.playerList.forEach(Strobo.server.commandManager::sendCommandTree)
+        server.playerManager.playerList.forEach(server.commandManager::sendCommandTree)
     }
 }

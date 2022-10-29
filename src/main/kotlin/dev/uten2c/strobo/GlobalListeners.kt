@@ -7,7 +7,7 @@ internal object GlobalListeners {
 
     fun setup() {
         listenEvent<ServerStartingEvent> {
-            Strobo.server = it.server
+            server = it.server
         }
     }
 }
